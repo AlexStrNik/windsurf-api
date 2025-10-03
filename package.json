@@ -1,0 +1,70 @@
+{
+  "name": "windsurf-api",
+  "displayName": "Windsurf API",
+  "description": "HTTP API for Windsurf AI",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.99.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "windsurfapi.startServer",
+        "title": "Windsurf API: Start Server"
+      },
+      {
+        "command": "windsurfapi.stopServer",
+        "title": "Windsurf API: Stop Server"
+      }
+    ],
+    "configuration": {
+      "title": "Windsurf API",
+      "properties": {
+        "windsurfapi.port": {
+          "type": "number",
+          "default": 47923,
+          "description": "Port for the HTTP server"
+        },
+        "windsurfapi.autoStart": {
+          "type": "boolean",
+          "default": false,
+          "description": "Auto-start server when Windsurf initializes"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "pnpm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "pnpm run compile && pnpm run lint",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@bufbuild/buf": "^1.55.1",
+    "@bufbuild/protoc-gen-es": "^2.6.2",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "20.x",
+    "@types/vscode": "^1.99.0",
+    "@typescript-eslint/eslint-plugin": "^8.31.1",
+    "@typescript-eslint/parser": "^8.31.1",
+    "@vscode/test-cli": "^0.0.11",
+    "@vscode/test-electron": "^2.5.2",
+    "esbuild": "^0.24.2",
+    "eslint": "^9.25.1",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "@bufbuild/protobuf": "^2.6.2",
+    "fastify": "^5.2.2",
+    "file-type": "^21.0.0"
+  }
+}

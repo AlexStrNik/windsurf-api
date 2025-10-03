@@ -1,0 +1,24 @@
+syntax = "proto3";
+import "exa.codeium_common_pb.proto";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/duration.proto";
+import "google/protobuf/empty.proto";
+
+package exa.chat_web_server_pb;
+message GetMatchingIndexedReposRequest {  exa.codeium_common_pb.Metadata metadata = 1;
+  string query = 2;
+  int32 max_items = 3;
+}
+
+message GetMatchingIndexedReposResponse {  repeated exa.codeium_common_pb.GitRepoInfo matched_repositories = 1;
+}
+
+message GetMatchingCodeContextRequest {  string query = 1;
+  repeated exa.codeium_common_pb.CodeContextType allowed_types = 3;
+  int32 max_items = 4;
+}
+
+message GetMatchingCodeContextResponse {  repeated exa.codeium_common_pb.CodeContextItem matched_items = 1;
+}
+

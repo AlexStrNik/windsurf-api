@@ -1,0 +1,58 @@
+syntax = "proto3";
+import "exa.codeium_common_pb.proto";
+import "exa.index_pb.proto";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/duration.proto";
+import "google/protobuf/empty.proto";
+
+package exa.code_edit;
+message RelevantCodeContext {  exa.codeium_common_pb.CodeContextItem code_context_item = 1;
+  exa.code_edit.RelevanceReason relevance_reason = 3;
+}
+
+message IntentRelevance {  string intent = 1;
+  float relevance_score = 2;
+  string rationale = 3;
+}
+
+message CodeContextItemChange {  exa.codeium_common_pb.CodeContextItem start_cci = 1;
+  exa.codeium_common_pb.CodeContextItem end_cci = 2;
+  repeated exa.code_edit.RelevantCodeContext relevant_code_contexts = 3;
+  map<string, string> description_by_type = 4;
+  repeated exa.code_edit.IntentRelevance intent_relevance = 5;
+}
+
+message FileChange {  string start_file_path_migrate_me_to_uri = 1;
+  string start_file_uri = 10;
+  string start_file_rel_path = 8;
+  string end_file_path_migrate_me_to_uri = 2;
+  string end_file_uri = 11;
+  string end_file_rel_path = 9;
+  string old_file_content = 3;
+  string new_file_content = 4;
+  repeated exa.code_edit.CodeContextItemChange code_context_item_changes = 6;
+  repeated exa.codeium_common_pb.CodeContextItem unchanged_code_context_items = 7;
+}
+
+message GitCommit {  string commit_hash = 1;
+  string parent_commit_hash = 2;
+}
+
+message Intent {  string intent = 1;
+  exa.code_edit.IntentType intent_type = 2;
+  bool include_test_files = 3;
+}
+
+message CodeChangeWithContext {  exa.codeium_common_pb.GitRepoInfo repository = 1;
+  repeated exa.code_edit.FileChange file_changes = 2;
+  repeated exa.code_edit.FileChange test_file_changes = 9;
+  string intent = 3;
+  exa.code_edit.GitCommit git_commit = 4;
+  exa.index_pb.IndexStats index_stats = 5;
+  repeated exa.codeium_common_pb.CodeContextItem unrelated_ccis = 6;
+  repeated exa.code_edit.Intent synthetic_intents = 8;
+}
+
+enum RelevanceReason {  RELEVANCE_REASON_UNSPECIFIED = 0;  RELEVANCE_REASON_SAME_COMMIT_OLD = 1;  RELEVANCE_REASON_SAME_COMMIT_NEW = 2;  RELEVANCE_REASON_REF_IN_DELETION = 3;  RELEVANCE_REASON_REF_IN_INSERTION = 4;  RELEVANCE_REASON_NOT_RELEVANT = 99;}
+enum IntentType {  INTENT_TYPE_UNSPECIFIED = 0;  INTENT_TYPE_COMMIT_GOAL = 1;  INTENT_TYPE_DIFF_SEARCH = 2;  INTENT_TYPE_CLEAN_COMMIT = 3;  INTENT_TYPE_CCI_SIGNATURE_SEARCH = 4;  INTENT_TYPE_CCI_RAW_SOURCE_SEARCH = 5;}

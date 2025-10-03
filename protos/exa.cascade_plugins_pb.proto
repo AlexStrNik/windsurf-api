@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/duration.proto";
+import "google/protobuf/empty.proto";
+
+package exa.cascade_plugins_pb;
+message CascadePluginCommandTemplate {  string command = 1;
+  repeated string args = 2;
+  map<string, string> env = 3;
+}
+
+message CascadePluginCommandVariable {  string name = 1;
+  string title = 2;
+  string description = 3;
+  string link = 4;
+}
+
+message CascadePluginCommand {  exa.cascade_plugins_pb.CascadePluginCommandTemplate template = 1;
+  repeated exa.cascade_plugins_pb.CascadePluginCommandVariable variables = 2;
+}
+
+message CascadePluginLocalConfig {  map<string, exa.cascade_plugins_pb.CascadePluginCommand> commands = 5;
+}
+
+message CascadePluginRemoteConfigTemplate {  string server_url = 1;
+  map<string, string> headers = 2;
+}
+
+message CascadePluginRemoteConfig {  exa.cascade_plugins_pb.CascadePluginRemoteConfigTemplate template = 1;
+}
+
+message CascadePluginTemplate {  string title = 1;
+  string id = 2;
+  string link = 3;
+  string description = 4;
+  map<string, exa.cascade_plugins_pb.CascadePluginCommand> commands = 5;
+  exa.cascade_plugins_pb.CascadePluginLocalConfig local = 9;
+  exa.cascade_plugins_pb.CascadePluginRemoteConfig remote = 10;
+  int64 installation_count = 6;
+  string trust_level = 7;
+  string readme = 8;
+}
+

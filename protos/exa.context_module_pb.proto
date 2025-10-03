@@ -1,0 +1,36 @@
+syntax = "proto3";
+import "exa.codeium_common_pb.proto";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/duration.proto";
+import "google/protobuf/empty.proto";
+
+package exa.context_module_pb;
+message CodeContextProviderMetadata {  float relative_weight = 1;
+}
+
+message RetrievedCodeContextItemMetadata {  repeated exa.codeium_common_pb.CodeContextSource context_sources = 1;
+  exa.codeium_common_pb.CodeContextType context_type = 2;
+  string scorer = 3;
+  float score = 4;
+  map<string, exa.context_module_pb.CodeContextProviderMetadata> provider_metadata = 5;
+  bool is_in_pinned_scope = 6;
+}
+
+message CciWithSubrangeWithRetrievalMetadata {  exa.codeium_common_pb.CciWithSubrange cci_with_subrange = 1;
+  exa.context_module_pb.RetrievedCodeContextItemMetadata metadata = 2;
+}
+
+message LocalNodeState {  exa.codeium_common_pb.CodeContextItem current_node = 1;
+  exa.codeium_common_pb.CodeContextItem closest_above_node = 2;
+  exa.codeium_common_pb.CodeContextItem closest_below_node = 3;
+}
+
+message ContextModuleResult {  repeated exa.context_module_pb.CciWithSubrangeWithRetrievalMetadata retrieved_cci_with_subranges = 1;
+  exa.codeium_common_pb.Document active_document = 2;
+  exa.codeium_common_pb.DocumentOutline active_document_outline = 5;
+  exa.context_module_pb.LocalNodeState local_node_state = 3;
+  exa.codeium_common_pb.Guideline guideline = 4;
+  repeated exa.codeium_common_pb.Document open_documents = 6;
+}
+
