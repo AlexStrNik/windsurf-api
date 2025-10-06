@@ -31,9 +31,6 @@ jobs:
       - name: Compile
         run: pnpm run compile
 
-      - name: Remove dev dependencies
-        run: pnpm prune --prod
-
       - name: Install vsce
         run: pnpm add -g @vscode/vsce
 
