@@ -25,6 +25,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Generate protos
+        run: npx buf generate
+
       - name: Compile
         run: pnpm run compile
 
