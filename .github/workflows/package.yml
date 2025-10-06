@@ -34,6 +34,9 @@ jobs:
       - name: Install vsce
         run: pnpm add -g @vscode/vsce
 
+      - name: Remove dev dependencies
+        run: pnpm prune --prod
+
       - name: Package extension
         run: pnpm run package
 

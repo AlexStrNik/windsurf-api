@@ -9,3 +9,10 @@ vsc-extension-quickstart.md
 **/*.map
 **/*.ts
 **/.vscode-test.*
+decompile/**
+protos/**
+tests/**
+.github/**
+buf.gen.yaml
+pnpm-lock.yaml
+.DS_Store
