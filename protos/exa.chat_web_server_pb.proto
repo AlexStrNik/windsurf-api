@@ -22,3 +22,8 @@ message GetMatchingCodeContextRequest {  string query = 1;
 message GetMatchingCodeContextResponse {  repeated exa.codeium_common_pb.CodeContextItem matched_items = 1;
 }
 
+service ChatWebServerService {
+  rpc GetMatchingIndexedRepos(exa.chat_web_server_pb.GetMatchingIndexedReposRequest) returns (exa.chat_web_server_pb.GetMatchingIndexedReposResponse);
+  rpc GetMatchingCodeContext(exa.chat_web_server_pb.GetMatchingCodeContextRequest) returns (exa.chat_web_server_pb.GetMatchingCodeContextResponse);
+}
+

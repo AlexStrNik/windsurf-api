@@ -4,6 +4,8 @@ import { Client } from "./client";
 interface PromptRequest {
   text: string;
   images?: Array<{ base64: string; mime?: string }>;
+  model?: string;
+  cascadeId?: string | null;
 }
 
 export class HttpServer {
@@ -35,16 +37,68 @@ export class HttpServer {
       return { status: "ok" };
     });
 
+    this.server.get("/models", async (request, reply) => {
+      try {
+        const models = await this.client.getModels();
+        const modelMap = models.reduce((acc, model) => {
+          if (model.modelOrAlias) {
+            acc[model.label] = {
+              model: model.modelOrAlias.model,
+              alias: model.modelOrAlias.alias,
+            };
+          }
+          return acc;
+        }, {} as Record<string, { model: number; alias: number }>);
+        return modelMap;
+      } catch (error) {
+        return reply.status(500).send({
+          error: error instanceof Error ? error.message : String(error),
+        });
+      }
+    });
+
+    this.server.get("/trajectories", async (request, reply) => {
+      try {
+        const trajectories = await this.client.getTrajectories();
+        const mapped = Object.entries(trajectories).map(([cascadeId, summary]) => ({
+          cascadeId,
+          name: summary.renamedTitle || summary.summary,
+          summary: summary.summary,
+          stepCount: summary.stepCount,
+          status: summary.status,
+          errored: summary.errored,
+          createdTime: summary.createdTime
+            ? new Date(
+                Number(summary.createdTime.seconds) * 1000 +
+                  summary.createdTime.nanos / 1000000
+              ).toISOString()
+            : undefined,
+          lastModifiedTime: summary.lastModifiedTime
+            ? new Date(
+                Number(summary.lastModifiedTime.seconds) * 1000 +
+                  summary.lastModifiedTime.nanos / 1000000
+              ).toISOString()
+            : undefined,
+          isClaudeCode: summary.isClaudeCode,
+        }));
+        return mapped;
+      } catch (error) {
+        return reply.status(500).send({
+          error: error instanceof Error ? error.message : String(error),
+        });
+      }
+    });
+
     this.server.post<{ Body: PromptRequest }>("/prompt", async (request, reply) => {
-      const { text, images } = request.body;
+      const { text, images, model, cascadeId } = request.body;
 
       if (!text) {
         return reply.status(400).send({ error: "text is required" });
       }
 
       try {
-        await this.client.sendMessage(text, images);
-        return { success: true };
+        const usedCascadeId = await this.client.sendMessage(text, images, model, cascadeId);
+        return { success: true, cascadeId: usedCascadeId };
       } catch (error) {
         return reply.status(500).send({
           error: error instanceof Error ? error.message : String(error),

@@ -50,7 +50,7 @@
   },
   "devDependencies": {
     "@bufbuild/buf": "^1.55.1",
-    "@bufbuild/protoc-gen-es": "^2.6.2",
+    "@bufbuild/protoc-gen-es": "^2.9.0",
     "@types/mocha": "^10.0.10",
     "@types/node": "20.x",
     "@types/vscode": "^1.99.0",
@@ -63,7 +63,9 @@
     "typescript": "^5.8.3"
   },
   "dependencies": {
-    "@bufbuild/protobuf": "^2.6.2",
+    "@bufbuild/protobuf": "^2.9.0",
+    "@connectrpc/connect": "^2.1.0",
+    "@connectrpc/connect-web": "^2.1.0",
     "fastify": "^5.2.2",
     "file-type": "^21.0.0"
   }

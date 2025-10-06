@@ -1,14 +1,13 @@
-import { create, toBinary, fromBinary } from "@bufbuild/protobuf";
-import {
-  SendUserCascadeMessageRequestSchema,
-  StartCascadeRequestSchema,
-  StartCascadeResponseSchema,
-} from "./gen/exa.language_server_pb_pb";
+import { createClient } from "@connectrpc/connect";
+import { createConnectTransport } from "@connectrpc/connect-web";
+import { create } from "@bufbuild/protobuf";
+import { LanguageServerService } from "./gen/exa.language_server_pb_pb";
 import {
   TextOrScopeItemSchema,
   ImageDataSchema,
   MetadataSchema,
   ModelOrAliasSchema,
+  ClientModelConfig,
 } from "./gen/exa.codeium_common_pb_pb";
 import {
   CascadeConfigSchema,
@@ -20,6 +19,7 @@ import {
   BrainConfigSchema,
   BrainUpdateStrategySchema,
   DynamicBrainUpdateConfigSchema,
+  CascadeTrajectorySummary,
 } from "./gen/exa.cortex_pb_pb";
 import { ChatParams } from "./types";
 
@@ -32,8 +32,23 @@ async function detectMimeType(base64: string): Promise<string> {
 
 export class Client {
   private cascadeId: string | null = null;
+  private client: ReturnType<typeof createClient<typeof LanguageServerService>>;
 
-  constructor(private chatParams: ChatParams) {}
+  constructor(private chatParams: ChatParams) {
+    const transport = createConnectTransport({
+      baseUrl: chatParams.languageServerUrl,
+      useBinaryFormat: true,
+      interceptors: [
+        (next) => async (req) => {
+          req.header.set("x-codeium-csrf-token", chatParams.csrfToken);
+          req.header.set("accept-language", "en-US");
+          return await next(req);
+        },
+      ],
+    });
+
+    this.client = createClient(LanguageServerService, transport);
+  }
 
   private createMetadata() {
     return create(MetadataSchema, {
@@ -50,14 +65,38 @@ export class Client {
 
   async sendMessage(
     text: string,
-    images?: Array<{ base64: string; mime?: string }>
-  ): Promise<void> {
-    if (!this.cascadeId) {
-      this.cascadeId = await this.startCascade();
-      console.log("Cascade started:", this.cascadeId);
+    images?: Array<{ base64: string; mime?: string }>,
+    modelLabel?: string,
+    cascadeId?: string | null
+  ): Promise<string> {
+    let targetCascadeId: string;
+
+    if (cascadeId === null) {
+      targetCascadeId = await this.startCascade();
+      this.cascadeId = targetCascadeId;
+      console.log("Cascade started:", targetCascadeId);
+    } else if (cascadeId !== undefined) {
+      targetCascadeId = cascadeId;
+      this.cascadeId = cascadeId;
+    } else {
+      if (!this.cascadeId) {
+        this.cascadeId = await this.startCascade();
+        console.log("Cascade started:", this.cascadeId);
+      }
+      targetCascadeId = this.cascadeId;
     }
 
     const metadata = this.createMetadata();
+
+    let requestedModel = create(ModelOrAliasSchema, { alias: 5 });
+
+    if (modelLabel) {
+      const models = await this.getModels();
+      const selectedModel = models.find((m) => m.label === modelLabel);
+      if (selectedModel?.modelOrAlias) {
+        requestedModel = selectedModel.modelOrAlias;
+      }
+    }
 
     const cascadeConfig = create(CascadeConfigSchema, {
       plannerConfig: create(CascadePlannerConfigSchema, {
@@ -71,9 +110,7 @@ export class Client {
             }),
           }),
         }),
-        requestedModel: create(ModelOrAliasSchema, {
-          alias: 5,
-        }),
+        requestedModel,
       }),
       brainConfig: create(BrainConfigSchema, {
         enabled: true,
@@ -97,8 +134,8 @@ export class Client {
         )
       : [];
 
-    const request = create(SendUserCascadeMessageRequestSchema, {
-      cascadeId: this.cascadeId!,
+    await this.client.sendUserCascadeMessage({
+      cascadeId: targetCascadeId,
       items,
       images: imageData,
       metadata,
@@ -108,59 +145,39 @@ export class Client {
       additionalSteps: [],
     });
 
-    const serialized = toBinary(SendUserCascadeMessageRequestSchema, request);
-    const url = `${this.chatParams.languageServerUrl}exa.language_server_pb.LanguageServerService/SendUserCascadeMessage`;
-
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        accept: "*/*",
-        "accept-language": "en-US",
-        "connect-protocol-version": "1",
-        "content-type": "application/proto",
-        "x-codeium-csrf-token": this.chatParams.csrfToken,
-      },
-      body: serialized,
-    });
-
-    if (!response.ok) {
-      throw new Error(`Request failed: ${response.status} ${response.statusText}`);
-    }
-
     console.log("Message sent successfully");
+    return targetCascadeId;
   }
 
   private async startCascade(): Promise<string> {
     const metadata = this.createMetadata();
 
-    const request = create(StartCascadeRequestSchema, {
+    const response = await this.client.startCascade({
       metadata,
       source: 0,
       trajectoryType: 0,
     });
 
-    const serialized = toBinary(StartCascadeRequestSchema, request);
-    const url = `${this.chatParams.languageServerUrl}exa.language_server_pb.LanguageServerService/StartCascade`;
+    return response.cascadeId;
+  }
 
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        accept: "*/*",
-        "accept-language": "en-US",
-        "connect-protocol-version": "1",
-        "content-type": "application/proto",
-        "x-codeium-csrf-token": this.chatParams.csrfToken,
-      },
-      body: serialized,
+  async getModels(): Promise<ClientModelConfig[]> {
+    const metadata = this.createMetadata();
+
+    const response = await this.client.getCascadeModelConfigs({
+      metadata,
     });
 
-    if (!response.ok) {
-      throw new Error(`StartCascade failed: ${response.status}`);
-    }
+    return response.clientModelConfigs;
+  }
 
-    const data = await response.arrayBuffer();
-    const result = fromBinary(StartCascadeResponseSchema, new Uint8Array(data));
+  async getTrajectories(): Promise<{
+    [key: string]: CascadeTrajectorySummary;
+  }> {
+    const response = await this.client.getAllCascadeTrajectories({
+      includeUserInputs: false,
+    });
 
-    return result.cascadeId;
+    return response.trajectorySummaries;
   }
 }

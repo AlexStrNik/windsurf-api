@@ -295,3 +295,50 @@ message GetClaudeCodeVersionResponse {  string version = 1;
 
 enum ActiveEditorType {  ACTIVE_EDITOR_TYPE_UNSPECIFIED = 0;  ACTIVE_EDITOR_TYPE_TEXT_EDITOR = 1;  ACTIVE_EDITOR_TYPE_TERMINAL = 2;}
 enum SoundType {  SOUND_TYPE_UNSPECIFIED = 0;  SOUND_TYPE_CASCADE_DONE = 1;}
+service ExtensionServerService {
+  rpc LanguageServerStarted(exa.extension_server_pb.LanguageServerStartedRequest) returns (exa.extension_server_pb.LanguageServerStartedResponse);
+  rpc OpenSetting(exa.extension_server_pb.OpenSettingRequest) returns (exa.extension_server_pb.OpenSettingResponse);
+  rpc OpenFilePointer(exa.extension_server_pb.OpenFilePointerRequest) returns (exa.extension_server_pb.OpenFilePointerResponse);
+  rpc InsertCodeAtCursor(exa.extension_server_pb.InsertCodeAtCursorRequest) returns (exa.extension_server_pb.InsertCodeAtCursorResponse);
+  rpc LogEvent(exa.extension_server_pb.LogEventRequest) returns (exa.extension_server_pb.LogEventResponse);
+  rpc CheckTerminalShellSupport(exa.extension_server_pb.CheckTerminalShellSupportRequest) returns (exa.extension_server_pb.CheckTerminalShellSupportResponse);
+  rpc ExecuteCommand(stream exa.extension_server_pb.ExecuteCommandRequest) returns (exa.codeium_common_pb.TerminalShellCommandStreamChunk);
+  rpc ShowTerminal(exa.extension_server_pb.ShowTerminalRequest) returns (exa.extension_server_pb.ShowTerminalResponse);
+  rpc OpenVirtualFile(exa.extension_server_pb.OpenVirtualFileRequest) returns (exa.extension_server_pb.OpenVirtualFileResponse);
+  rpc SaveDocument(exa.extension_server_pb.SaveDocumentRequest) returns (exa.extension_server_pb.SaveDocumentResponse);
+  rpc ReadTerminal(exa.extension_server_pb.ReadTerminalRequest) returns (exa.extension_server_pb.ReadTerminalResponse);
+  rpc OpenTerminal(exa.extension_server_pb.OpenTerminalRequest) returns (exa.extension_server_pb.OpenTerminalResponse);
+  rpc GetLintErrors(exa.extension_server_pb.GetLintErrorsRequest) returns (exa.extension_server_pb.GetLintErrorsResponse);
+  rpc OpenDiffZones(exa.extension_server_pb.OpenDiffZonesRequest) returns (exa.extension_server_pb.OpenDiffZonesResponse);
+  rpc OpenExternalUrl(exa.extension_server_pb.OpenExternalUrlRequest) returns (exa.extension_server_pb.OpenExternalUrlResponse);
+  rpc OpenMultiDiff(exa.extension_server_pb.OpenMultiDiffRequest) returns (exa.extension_server_pb.OpenMultiDiffResponse);
+  rpc HandleAsyncPostMessage(exa.extension_server_pb.HandleAsyncPostMessageRequest) returns (exa.extension_server_pb.HandleAsyncPostMessageResponse);
+  rpc PlaySound(exa.extension_server_pb.PlaySoundRequest) returns (exa.extension_server_pb.PlaySoundResponse);
+  rpc OpenWindsurfRulesFile(exa.extension_server_pb.OpenWindsurfRulesFileRequest) returns (exa.extension_server_pb.OpenWindsurfRulesFileResponse);
+  rpc DeleteWindsurfRulesFile(exa.extension_server_pb.DeleteWindsurfRulesFileRequest) returns (exa.extension_server_pb.DeleteWindsurfRulesFileResponse);
+  rpc OpenPluginPage(exa.extension_server_pb.OpenPluginPageRequest) returns (exa.extension_server_pb.OpenPluginPageResponse);
+  rpc OpenPluginConfigModal(exa.extension_server_pb.OpenPluginConfigModalRequest) returns (exa.extension_server_pb.OpenPluginConfigModalResponse);
+  rpc OpenConfigurePluginsPage(exa.extension_server_pb.OpenConfigurePluginsPageRequest) returns (exa.extension_server_pb.OpenConfigurePluginsPageResponse);
+  rpc OpenConversationWorkspaceQuickPick(exa.extension_server_pb.OpenConversationWorkspaceQuickPickRequest) returns (exa.extension_server_pb.OpenConversationWorkspaceQuickPickResponse);
+  rpc FindAllReferences(exa.extension_server_pb.FindAllReferencesRequest) returns (exa.extension_server_pb.FindAllReferencesResponse);
+  rpc GetDefinition(exa.extension_server_pb.GetDefinitionRequest) returns (exa.extension_server_pb.GetDefinitionResponse);
+  rpc RefreshURIs(exa.extension_server_pb.RefreshURIsRequest) returns (exa.extension_server_pb.RefreshURIsResponse);
+  rpc CheckExperiment(exa.extension_server_pb.CheckExperimentRequest) returns (exa.extension_server_pb.CheckExperimentResponse);
+  rpc TerminalResearchResult(exa.extension_server_pb.TerminalResearchResultRequest) returns (exa.extension_server_pb.TerminalResearchResultResponse);
+  rpc WriteCascadeEdit(exa.extension_server_pb.WriteCascadeEditRequest) returns (exa.extension_server_pb.WriteCascadeEditResponse);
+  rpc StartAudioRecording(exa.extension_server_pb.StartAudioRecordingRequest) returns (exa.extension_server_pb.StartAudioRecordingResponse);
+  rpc EndAudioRecording(exa.extension_server_pb.EndAudioRecordingRequest) returns (exa.extension_server_pb.EndAudioRecordingResponse);
+  rpc GetCurrentAudioRecording(exa.extension_server_pb.GetCurrentAudioRecordingRequest) returns (exa.extension_server_pb.GetCurrentAudioRecordingResponse);
+  rpc HandleProposeCodeExtensionVerification(exa.extension_server_pb.HandleProposeCodeExtensionVerificationRequest) returns (exa.extension_server_pb.HandleProposeCodeExtensionVerificationResponse);
+  rpc UpdateCascadeTrajectorySummaries(exa.extension_server_pb.UpdateCascadeTrajectorySummariesRequest) returns (exa.extension_server_pb.UpdateCascadeTrajectorySummariesResponse);
+  rpc RunExtensionCode(exa.extension_server_pb.RunExtensionCodeRequest) returns (exa.extension_server_pb.RunExtensionCodeResponse);
+  rpc AddAnnotation(exa.extension_server_pb.AddAnnotationRequest) returns (exa.extension_server_pb.AddAnnotationResponse);
+  rpc RemoveAnnotation(exa.extension_server_pb.RemoveAnnotationRequest) returns (exa.extension_server_pb.RemoveAnnotationResponse);
+  rpc ShowAnnotation(exa.extension_server_pb.ShowAnnotationRequest) returns (exa.extension_server_pb.ShowAnnotationResponse);
+  rpc GetSecretValue(exa.extension_server_pb.GetSecretValueRequest) returns (exa.extension_server_pb.GetSecretValueResponse);
+  rpc StoreSecretValue(exa.extension_server_pb.StoreSecretValueRequest) returns (exa.extension_server_pb.StoreSecretValueResponse);
+  rpc CancelVibeAndReplace(exa.extension_server_pb.CancelVibeAndReplaceRequest) returns (exa.extension_server_pb.CancelVibeAndReplaceResponse);
+  rpc SearchQuery(exa.extension_server_pb.SearchQueryRequest) returns (exa.extension_server_pb.SearchQueryResponse);
+  rpc GetClaudeCodeVersion(exa.extension_server_pb.GetClaudeCodeVersionRequest) returns (exa.extension_server_pb.GetClaudeCodeVersionResponse);
+}
+

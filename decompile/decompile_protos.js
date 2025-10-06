@@ -2,6 +2,7 @@ const protos = require("./chat.js");
 const fs = require("fs");
 
 const enums = {};
+const services = {};
 
 const namespaces = {};
 const namespaceImports = {};
@@ -140,13 +141,58 @@ const getNamespaceFromTypeName = (typeName) => {
 };
 
 const decompileService = (service) => {
+  const namespace = getNamespaceFromTypeName(service.typeName);
+  const serviceName = service.typeName.split(".").pop();
+
+  if (!services[namespace]) {
+    services[namespace] = [];
+  }
+
+  let serviceDefinition = `service ${serviceName} {\n`;
+
   for (const method of Object.values(service.methods)) {
     decompileProto(method.I);
     decompileProto(method.O);
+
+    const inputType = getFullTypeNameFromField(method.I);
+    const outputType = getFullTypeNameFromField(method.O);
+
+    const inputNamespace = getNamespaceFromTypeName(method.I.typeName);
+    const outputNamespace = getNamespaceFromTypeName(method.O.typeName);
+
+    if (inputNamespace !== namespace) {
+      if (!namespaceImports[namespace]) {
+        namespaceImports[namespace] = [];
+      }
+      if (!namespaceImports[namespace].includes(inputNamespace)) {
+        namespaceImports[namespace].push(inputNamespace);
+      }
+    }
+
+    if (outputNamespace !== namespace) {
+      if (!namespaceImports[namespace]) {
+        namespaceImports[namespace] = [];
+      }
+      if (!namespaceImports[namespace].includes(outputNamespace)) {
+        namespaceImports[namespace].push(outputNamespace);
+      }
+    }
+
+    const isClientStreaming = method.kind === 1 || method.kind === 3;
+    const isServerStreaming = method.kind === 2 || method.kind === 3;
+
+    const inputStream = isClientStreaming ? "stream " : "";
+    const outputStream = isServerStreaming ? "stream " : "";
+
+    serviceDefinition += `  rpc ${method.name}(${inputStream}${inputType}) returns (${outputStream}${outputType});\n`;
   }
+
+  serviceDefinition += "}\n";
+
+  services[namespace].push(serviceDefinition);
 };
 
-for (const [key, value] of Object.entries(protos)) {
+for (const value of Object.values(protos)) {
   decompileService(value);
 }
 
@@ -169,7 +215,12 @@ for (const [key, value] of Object.entries(enums)) {
   namespaces[namespace].push(enumDefinition);
 }
 
-for (const [namespace, messages] of Object.entries(namespaces)) {
+const allNamespaces = new Set([
+  ...Object.keys(namespaces),
+  ...Object.keys(services)
+]);
+
+for (const namespace of allNamespaces) {
   let imports = "";
 
   if (namespaceImports[namespace]) {
@@ -185,8 +236,16 @@ for (const [namespace, messages] of Object.entries(namespaces)) {
   namespaceContent += "\n";
   namespaceContent += `package ${namespace};\n`;
 
-  for (const message of messages) {
-    namespaceContent += message + "\n";
+  if (namespaces[namespace]) {
+    for (const message of namespaces[namespace]) {
+      namespaceContent += message + "\n";
+    }
+  }
+
+  if (services[namespace]) {
+    for (const service of services[namespace]) {
+      namespaceContent += service + "\n";
+    }
   }
 
   fs.writeFileSync(`protos/${namespace}.proto`, namespaceContent);

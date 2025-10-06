@@ -27,3 +27,7 @@ message ChatClientRequest {  exa.chat_client_server_pb.AddCascadeInputRequest ad
   exa.chat_client_server_pb.RefreshCustomizationRequest refresh_customization = 4;
 }
 
+service ChatClientServerService {
+  rpc StartChatClientRequestStream(stream exa.chat_client_server_pb.StartChatClientRequestStreamRequest) returns (exa.chat_client_server_pb.ChatClientRequest);
+}
+
