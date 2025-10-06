@@ -2,7 +2,11 @@
   "name": "windsurf-api",
   "displayName": "Windsurf API",
   "description": "HTTP API for Windsurf AI",
-  "version": "0.0.1",
+  "version": "0.0.2",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AlexStrNik/windsurf-api.git"
+  },
   "engines": {
     "vscode": "^1.99.0"
   },
@@ -47,7 +51,7 @@
     "pretest": "pnpm run compile && pnpm run lint",
     "lint": "eslint src",
     "test": "vscode-test",
-    "package": "vsce package"
+    "package": "vsce package --no-dependencies"
   },
   "devDependencies": {
     "@bufbuild/buf": "^1.55.1",
