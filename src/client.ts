@@ -20,6 +20,7 @@ import {
   BrainUpdateStrategySchema,
   DynamicBrainUpdateConfigSchema,
   CascadeTrajectorySummary,
+  CascadeRunStatus,
 } from "./gen/exa.cortex_pb_pb";
 import { ChatParams } from "./types";
 
@@ -63,29 +64,12 @@ export class Client {
     });
   }
 
-  async sendMessage(
+  async sendMessageDirect(
     text: string,
+    cascadeId: string,
     images?: Array<{ base64: string; mime?: string }>,
-    modelLabel?: string,
-    cascadeId?: string | null
-  ): Promise<string> {
-    let targetCascadeId: string;
-
-    if (cascadeId === null) {
-      targetCascadeId = await this.startCascade();
-      this.cascadeId = targetCascadeId;
-      console.log("Cascade started:", targetCascadeId);
-    } else if (cascadeId !== undefined) {
-      targetCascadeId = cascadeId;
-      this.cascadeId = cascadeId;
-    } else {
-      if (!this.cascadeId) {
-        this.cascadeId = await this.startCascade();
-        console.log("Cascade started:", this.cascadeId);
-      }
-      targetCascadeId = this.cascadeId;
-    }
-
+    modelLabel?: string
+  ): Promise<void> {
     const metadata = this.createMetadata();
 
     let requestedModel = create(ModelOrAliasSchema, { alias: 5 });
@@ -135,7 +119,7 @@ export class Client {
       : [];
 
     await this.client.sendUserCascadeMessage({
-      cascadeId: targetCascadeId,
+      cascadeId,
       items,
       images: imageData,
       metadata,
@@ -145,11 +129,10 @@ export class Client {
       additionalSteps: [],
     });
 
-    console.log("Message sent successfully");
-    return targetCascadeId;
+    console.log("Message sent successfully to cascade", cascadeId);
   }
 
-  private async startCascade(): Promise<string> {
+  async startCascade(): Promise<string> {
     const metadata = this.createMetadata();
 
     const response = await this.client.startCascade({
@@ -159,6 +142,36 @@ export class Client {
     });
 
     return response.cascadeId;
+  }
+
+  async getCascadeStatus(cascadeId: string): Promise<CascadeRunStatus> {
+    const response = await this.client.getCascadeTrajectory({
+      cascadeId,
+    });
+
+    return response.status;
+  }
+
+  async waitForCascadeIdle(
+    cascadeId: string,
+    maxWaitMs: number = 30000
+  ): Promise<void> {
+    const startTime = Date.now();
+    const pollInterval = 500;
+
+    while (Date.now() - startTime < maxWaitMs) {
+      const status = await this.getCascadeStatus(cascadeId);
+
+      if (status === CascadeRunStatus.IDLE) {
+        return;
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, pollInterval));
+    }
+
+    throw new Error(
+      `Cascade ${cascadeId} did not become idle within ${maxWaitMs}ms`
+    );
   }
 
   async getModels(): Promise<ClientModelConfig[]> {
