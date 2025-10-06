@@ -51,13 +51,19 @@ This allows both our extension and Windsurf to work.
 
 Windsurf uses gRPC for communication with its server, and it's not a public API. We need to get the protos. Thankfully JS is fucking stupid and straightforward - having a compiled gRPC client, we can do some magic (described in [./decompile/DECOMPILE.md](./decompile/DECOMPILE.md)) and get the source protos back, just to compile them back to TypeScript. Fucking cycle of nonsense.
 
+**Update:** Improved the decompiler to recover full gRPC service definitions with proper streaming annotations. This makes adding new API features way easier - just look at the proto, call the RPC method through the generated client.
+
 ## Problem 3: Understanding the protocol
 
 With ports and protos, we can finally send messages to the server. Go to the network tab, observe what chat.js sends, decode protobufs to get an idea of what to send and where. Write a client and that's it.
 
-Wrap that shit in a REST server, and now we can start a new cascade and send messages from any app. The only thing the user needs to do is manually open a newly created chat. I didn't implement continuing an existing chat (though I found how - look at `GetAllCascadeTrajectoriesRequest` if you need this).
+Wrap that shit in a REST server with proper queueing (Windsurf does this UI-side instead of at gRPC level), and now you can:
+- Start new conversations
+- Continue existing conversations by cascadeId
+- List available models and select which one to use
+- Send messages without blocking - queue handles cascade status automatically
 
-Also, there's a model selector that uses numbers as model IDs. No idea how to map them to readable names, so I hardcoded whatever I had selected while reversing this. You can easily change it - just use `./scripts/decode_request.js` to decode the body of `SendUserCascadeMessage` captured by sending any message to any chat.
+The queue system is per-cascade, so multiple conversations can process concurrently. If a cascade is idle, messages send immediately. If busy, they queue and wait.
 
 # Usage
 
@@ -66,26 +72,111 @@ Also, there's a model selector that uses numbers as model IDs. No idea how to ma
    - `windsurfapi.port` - HTTP server port (default: 47923)
    - `windsurfapi.autoStart` - Auto-start server on Windsurf init (default: false)
 3. Start server manually via command palette: `Windsurf API: Start Server` (or enable autoStart)
-4. Send requests to `http://localhost:47923/prompt`:
+
+## API Endpoints
+
+### POST /prompt
+Send a message to Windsurf. Returns immediately with status and cascadeId.
 
 ```bash
+# New conversation
 curl -X POST http://localhost:47923/prompt \
   -H "Content-Type: application/json" \
   -d '{"text": "Hello from API"}'
-```
 
-With images:
+# Continue existing conversation
+curl -X POST http://localhost:47923/prompt \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Follow-up question", "cascadeId": "cascade-id-here"}'
 
-```bash
+# With images
 curl -X POST http://localhost:47923/prompt \
   -H "Content-Type: application/json" \
   -d '{
     "text": "What is in this image?",
     "images": [{"base64": "iVBORw0KGgo...", "mime": "image/png"}]
   }'
+
+# With model selection
+curl -X POST http://localhost:47923/prompt \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Use GPT-5", "model": "GPT-5 (low reasoning)"}'
 ```
+
+Response:
+```json
+{
+  "status": "sent",  // or "queued" if cascade is busy
+  "messageId": "message-uuid",
+  "cascadeId": "cascade-uuid",
+  "queuePosition": 1  // only present if queued
+}
+```
+
+### GET /models
+Get list of available models.
+
+```bash
+curl http://localhost:47923/models
+```
+
+Returns: `["Claude Sonnet 4.5 (promo)", "SWE-1", "GPT-5 (low reasoning)", ...]`
+
+### GET /trajectories
+List all conversations.
+
+```bash
+curl http://localhost:47923/trajectories
+```
+
+Returns array of conversations with cascadeId, name, status, timestamps, etc.
+
+### GET /queue
+View queued messages. Optional `?cascadeId=xxx` to filter by cascade.
+
+```bash
+curl http://localhost:47923/queue
+curl http://localhost:47923/queue?cascadeId=cascade-id
+```
+
+### GET /queue/:messageId
+Check status of a specific message.
+
+```bash
+curl http://localhost:47923/queue/message-id
+```
+
+### GET /status?cascadeId=xxx
+Check if a cascade is idle or busy.
+
+```bash
+curl http://localhost:47923/status?cascadeId=cascade-id
+```
+
+## Test Scripts
+
+Located in `tests/`:
+- `continue.sh` - Interactive script to list and continue conversations
+- `queue_test.sh` - Send 5 messages, monitor queue until empty
+- `test_text.sh` - Basic text message test
+- `test_image.sh` - Image message test
+- `test_models.sh` - List available models
+- `test_model_selection.sh` - Test sending messages with different models
+- `test_trajectories.sh` - List all conversations
 
 # Commands
 
 - `Windsurf API: Start Server` - Start HTTP server
 - `Windsurf API: Stop Server` - Stop HTTP server
+
+# Development
+
+## Packaging
+
+To build a `.vsix` file:
+
+```bash
+pnpm run package
+```
+
+The GitHub Actions workflow automatically builds and releases the extension on git tags (e.g., `v0.0.2`).

@@ -43,16 +43,9 @@ export class HttpServer {
     this.server.get("/models", async (request, reply) => {
       try {
         const models = await this.client.getModels();
-        const modelMap = models.reduce((acc, model) => {
-          if (model.modelOrAlias) {
-            acc[model.label] = {
-              model: model.modelOrAlias.model,
-              alias: model.modelOrAlias.alias,
-            };
-          }
-          return acc;
-        }, {} as Record<string, { model: number; alias: number }>);
-        return modelMap;
+        return models
+          .filter((m) => m.modelOrAlias)
+          .map((m) => m.label);
       } catch (error) {
         return reply.status(500).send({
           error: error instanceof Error ? error.message : String(error),
