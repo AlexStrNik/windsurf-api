@@ -1,5 +1,36 @@
-const protos = require("./chat.js");
 const fs = require("fs");
+const path = require("path");
+
+const protosBundlePath = path.join(__dirname, "workbench.desktop.main.protos.js");
+const workbenchBundlePath = path.join(__dirname, "workbench.desktop.main.js");
+const legacyBundlePath = path.join(__dirname, "chat.js");
+
+let bundlePath;
+if (fs.existsSync(protosBundlePath)) {
+  bundlePath = protosBundlePath;
+} else if (fs.existsSync(legacyBundlePath)) {
+  bundlePath = legacyBundlePath;
+} else if (fs.existsSync(workbenchBundlePath)) {
+  throw new Error(
+    [
+      "Missing decompile/workbench.desktop.main.protos.js.",
+      "Found decompile/workbench.desktop.main.js, but decompile_protos.js will not load it.",
+      "Run: pnpm exec node decompile/strip_bundle.js",
+      "Then: pnpm exec node decompile/decompile_protos.js",
+    ].join("\n")
+  );
+} else {
+  throw new Error(
+    [
+      "Missing decompile/workbench.desktop.main.protos.js.",
+      "Expected one of:",
+      "- decompile/workbench.desktop.main.protos.js",
+      "- decompile/chat.js",
+    ].join("\n")
+  );
+}
+
+const protos = require(bundlePath);
 
 const enums = {};
 const services = {};

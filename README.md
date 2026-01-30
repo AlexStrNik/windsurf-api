@@ -55,7 +55,7 @@ Windsurf uses gRPC for communication with its server, and it's not a public API.
 
 ## Problem 3: Understanding the protocol
 
-With ports and protos, we can finally send messages to the server. Go to the network tab, observe what chat.js sends, decode protobufs to get an idea of what to send and where. Write a client and that's it.
+With ports and protos, we can finally send messages to the server. Go to the network tab, observe what workbench.desktop.main.js sends, decode protobufs to get an idea of what to send and where. Write a client and that's it.
 
 Wrap that shit in a REST server with proper queueing (Windsurf does this UI-side instead of at gRPC level), and now you can:
 - Start new conversations

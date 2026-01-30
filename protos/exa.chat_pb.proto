@@ -7,12 +7,19 @@ import "google/protobuf/duration.proto";
 import "google/protobuf/empty.proto";
 
 package exa.chat_pb;
+message ComputerUseToolConfig {  int32 display_width_px = 1;
+  int32 display_height_px = 2;
+  int32 display_number = 3;
+}
+
 message ChatToolDefinition {  string name = 1;
   string description = 2;
   string json_schema_string = 3;
   bool strict = 4;
   repeated string attribution_field_names = 5;
   string server_name = 6;
+  bool read_only_hint = 7;
+  exa.chat_pb.ComputerUseToolConfig computer_use_config = 8;
 }
 
 message PromptCacheOptions {  exa.chat_pb.CacheControlType type = 1;
@@ -34,10 +41,40 @@ message ChatMessagePrompt {  string message_id = 1;
   repeated exa.codeium_common_pb.PromptAnnotationRange prompt_annotation_ranges = 14;
   string output_id = 15;
   string thinking_id = 16;
+  bytes gemini_thought_signature = 17;
+  string signature_type = 18;
 }
 
 message ChatToolChoice {  string option_name = 1;
   string tool_name = 2;
+}
+
+message DeepWikiSymbolRange {  int64 start_line = 1;
+  int64 start_column = 2;
+  int64 end_line = 3;
+  int64 end_column = 4;
+}
+
+message DeepWikiHoverContext {  string symbol_name = 1;
+  string symbol_uri = 2;
+  exa.chat_pb.DeepWikiSymbolRange symbol_range = 3;
+  exa.chat_pb.DeepWikiSymbolType symbol_type = 4;
+  string hover_text = 5;
+  google.protobuf.Timestamp timestamp = 6;
+}
+
+message ParameterInfo {  string label = 1;
+  string documentation = 2;
+}
+
+message FunctionCallInfo {  string signature_label = 1;
+  int32 active_parameter = 2;
+  int32 parameter_count = 3;
+  repeated exa.chat_pb.ParameterInfo parameters = 4;
+}
+
+message DeepWikiContext {  exa.chat_pb.DeepWikiHoverContext enclosing_hover_context = 1;
+  exa.chat_pb.FunctionCallInfo function_call_info = 2;
 }
 
 message IntentGeneric {  string text = 1;
@@ -164,7 +201,8 @@ message ChatMetrics {  uint64 response_stream_latency_ms = 1;
   exa.codeium_common_pb.CodeContextItem last_active_code_context_item = 12;
   uint64 num_indexed_files = 13;
   uint64 num_indexed_code_context_items = 14;
-  exa.codeium_common_pb.Model model = 15;
+  exa.codeium_common_pb.Model model_deprecated = 15;
+  string model_uid = 17;
 }
 
 message ChatMessageAction {  exa.chat_pb.ChatMessageActionGeneric generic = 1;
@@ -247,7 +285,7 @@ message GetDeepWikiRequest {  exa.codeium_common_pb.Metadata metadata = 1;
 }
 
 enum CacheControlType {  CACHE_CONTROL_TYPE_UNSPECIFIED = 0;  CACHE_CONTROL_TYPE_EPHEMERAL = 1;}
+enum DeepWikiSymbolType {  DEEP_WIKI_SYMBOL_TYPE_UNSPECIFIED = 0;  DEEP_WIKI_SYMBOL_TYPE_FILE = 1;  DEEP_WIKI_SYMBOL_TYPE_MODULE = 2;  DEEP_WIKI_SYMBOL_TYPE_NAMESPACE = 3;  DEEP_WIKI_SYMBOL_TYPE_PACKAGE = 4;  DEEP_WIKI_SYMBOL_TYPE_CLASS = 5;  DEEP_WIKI_SYMBOL_TYPE_METHOD = 6;  DEEP_WIKI_SYMBOL_TYPE_PROPERTY = 7;  DEEP_WIKI_SYMBOL_TYPE_FIELD = 8;  DEEP_WIKI_SYMBOL_TYPE_CONSTRUCTOR = 9;  DEEP_WIKI_SYMBOL_TYPE_ENUM = 10;  DEEP_WIKI_SYMBOL_TYPE_INTERFACE = 11;  DEEP_WIKI_SYMBOL_TYPE_FUNCTION = 12;  DEEP_WIKI_SYMBOL_TYPE_VARIABLE = 13;  DEEP_WIKI_SYMBOL_TYPE_CONSTANT = 14;  DEEP_WIKI_SYMBOL_TYPE_STRING = 15;  DEEP_WIKI_SYMBOL_TYPE_NUMBER = 16;  DEEP_WIKI_SYMBOL_TYPE_BOOLEAN = 17;  DEEP_WIKI_SYMBOL_TYPE_ARRAY = 18;  DEEP_WIKI_SYMBOL_TYPE_OBJECT = 19;  DEEP_WIKI_SYMBOL_TYPE_KEY = 20;  DEEP_WIKI_SYMBOL_TYPE_NULL = 21;  DEEP_WIKI_SYMBOL_TYPE_ENUM_MEMBER = 22;  DEEP_WIKI_SYMBOL_TYPE_STRUCT = 23;  DEEP_WIKI_SYMBOL_TYPE_EVENT = 24;  DEEP_WIKI_SYMBOL_TYPE_OPERATOR = 25;  DEEP_WIKI_SYMBOL_TYPE_TYPE_PARAMETER = 26;}
 enum ChatIntentType {  CHAT_INTENT_UNSPECIFIED = 0;  CHAT_INTENT_GENERIC = 1;  CHAT_INTENT_FUNCTION_EXPLAIN = 2;  CHAT_INTENT_FUNCTION_DOCSTRING = 3;  CHAT_INTENT_FUNCTION_REFACTOR = 4;  CHAT_INTENT_CODE_BLOCK_EXPLAIN = 5;  CHAT_INTENT_CODE_BLOCK_REFACTOR = 6;  CHAT_INTENT_FUNCTION_UNIT_TESTS = 7;  CHAT_INTENT_PROBLEM_EXPLAIN = 8;  CHAT_INTENT_GENERATE_CODE = 9;  CHAT_INTENT_CLASS_EXPLAIN = 10;  CHAT_INTENT_SEARCH = 11;  CHAT_INTENT_FAST_APPLY = 12;}
 enum DeepWikiRequestType {  DEEP_WIKI_REQUEST_TYPE_UNSPECIFIED = 0;  DEEP_WIKI_REQUEST_TYPE_SUMMARY = 1;  DEEP_WIKI_REQUEST_TYPE_ARTICLE = 2;}
-enum DeepWikiSymbolType {  DEEP_WIKI_SYMBOL_TYPE_UNSPECIFIED = 0;  DEEP_WIKI_SYMBOL_TYPE_FILE = 1;  DEEP_WIKI_SYMBOL_TYPE_MODULE = 2;  DEEP_WIKI_SYMBOL_TYPE_NAMESPACE = 3;  DEEP_WIKI_SYMBOL_TYPE_PACKAGE = 4;  DEEP_WIKI_SYMBOL_TYPE_CLASS = 5;  DEEP_WIKI_SYMBOL_TYPE_METHOD = 6;  DEEP_WIKI_SYMBOL_TYPE_PROPERTY = 7;  DEEP_WIKI_SYMBOL_TYPE_FIELD = 8;  DEEP_WIKI_SYMBOL_TYPE_CONSTRUCTOR = 9;  DEEP_WIKI_SYMBOL_TYPE_ENUM = 10;  DEEP_WIKI_SYMBOL_TYPE_INTERFACE = 11;  DEEP_WIKI_SYMBOL_TYPE_FUNCTION = 12;  DEEP_WIKI_SYMBOL_TYPE_VARIABLE = 13;  DEEP_WIKI_SYMBOL_TYPE_CONSTANT = 14;  DEEP_WIKI_SYMBOL_TYPE_STRING = 15;  DEEP_WIKI_SYMBOL_TYPE_NUMBER = 16;  DEEP_WIKI_SYMBOL_TYPE_BOOLEAN = 17;  DEEP_WIKI_SYMBOL_TYPE_ARRAY = 18;  DEEP_WIKI_SYMBOL_TYPE_OBJECT = 19;  DEEP_WIKI_SYMBOL_TYPE_KEY = 20;  DEEP_WIKI_SYMBOL_TYPE_NULL = 21;  DEEP_WIKI_SYMBOL_TYPE_ENUM_MEMBER = 22;  DEEP_WIKI_SYMBOL_TYPE_STRUCT = 23;  DEEP_WIKI_SYMBOL_TYPE_EVENT = 24;  DEEP_WIKI_SYMBOL_TYPE_OPERATOR = 25;  DEEP_WIKI_SYMBOL_TYPE_TYPE_PARAMETER = 26;}
 enum ChatFeedbackType {  FEEDBACK_TYPE_UNSPECIFIED = 0;  FEEDBACK_TYPE_ACCEPT = 1;  FEEDBACK_TYPE_REJECT = 2;  FEEDBACK_TYPE_COPIED = 3;  FEEDBACK_TYPE_ACCEPT_DIFF = 4;  FEEDBACK_TYPE_REJECT_DIFF = 5;  FEEDBACK_TYPE_APPLY_DIFF = 6;  FEEDBACK_TYPE_INSERT_AT_CURSOR = 7;}
