@@ -5,24 +5,97 @@ import "google/protobuf/duration.proto";
 import "google/protobuf/empty.proto";
 
 package exa.codeium_common_pb;
-message PathScopeItem {  string absolute_path_migrate_me_to_uri = 1;
-  string absolute_uri = 5;
-  map<string, string> workspace_relative_paths_migrate_me_to_workspace_uris = 2;
-  map<string, string> workspace_uris_to_relative_paths = 6;
-  uint32 num_files = 3;
-  uint64 num_bytes = 4;
+message Metadata {  string ide_name = 1;
+  string ide_version = 7;
+  string ide_type = 28;
+  string extension_name = 12;
+  string extension_version = 2;
+  string api_key = 3;
+  string locale = 4;
+  string os = 5;
+  string hardware = 8;
+  bool disable_telemetry = 6;
+  string session_id = 10;
+  google.protobuf.Timestamp ls_timestamp = 16;
+  uint64 request_id = 9;
+  string source_address = 11;
+  string user_agent = 13;
+  string url = 14;
+  exa.codeium_common_pb.AuthSource auth_source = 15;
+  string extension_path = 17;
+  string user_id = 20;
+  string user_jwt = 21;
+  string force_team_id = 22;
+  string device_fingerprint = 24;
+  string trigger_id = 25;
+  string plan_name = 26;
+  string id = 27;
+  string impersonate_tier = 29;
 }
 
-message GitRepoInfo {  string name = 1;
-  string owner = 2;
-  string repo_name = 5;
-  string commit = 3;
-  string version_alias = 4;
-  exa.codeium_common_pb.ScmProvider scm_provider = 6;
-  string base_git_url = 7;
+message DocumentPosition {  uint64 row = 1;
+  uint64 col = 2;
 }
 
-message RepositoryScopeItem {  exa.codeium_common_pb.GitRepoInfo repo_info = 1;
+message Range {  uint64 start_offset = 1;
+  uint64 end_offset = 2;
+  exa.codeium_common_pb.DocumentPosition start_position = 3;
+  exa.codeium_common_pb.DocumentPosition end_position = 4;
+}
+
+message Document {  string absolute_path_migrate_me_to_uri = 1;
+  string absolute_uri = 12;
+  string relative_path_migrate_me_to_workspace_uri = 2;
+  string workspace_uri = 13;
+  string text = 3;
+  string editor_language = 4;
+  exa.codeium_common_pb.Language language = 5;
+  uint64 cursor_offset = 6;
+  exa.codeium_common_pb.DocumentPosition cursor_position = 8;
+  string line_ending = 7;
+  exa.codeium_common_pb.Range visible_range = 9;
+  bool is_cutoff_start = 10;
+  bool is_cutoff_end = 11;
+  int32 lines_cutoff_start = 14;
+  int32 lines_cutoff_end = 15;
+  google.protobuf.Timestamp timestamp = 16;
+  bool is_dirty = 17;
+  bool is_notebook = 19;
+  google.protobuf.Timestamp last_access_time = 21;
+  repeated exa.codeium_common_pb.Range selections = 22;
+  uint64 hash = 23;
+}
+
+message EditorOptions {  uint64 tab_size = 1;
+  bool insert_spaces = 2;
+  bool disable_autocomplete_in_comments = 3;
+}
+
+message ChatToolCall {  string id = 1;
+  string name = 2;
+  string arguments_json = 3;
+  string invalid_json_str = 4;
+  string invalid_json_err = 5;
+}
+
+message Completion {  string completion_id = 1;
+  string request_uid = 17;
+  string text = 2;
+  string stop = 4;
+  double score = 5;
+  repeated uint64 tokens = 6;
+  repeated string decoded_tokens = 7;
+  repeated double probabilities = 8;
+  repeated double adjusted_probabilities = 9;
+  repeated double logprobs = 16;
+  uint64 generated_length = 10;
+  exa.codeium_common_pb.StopReason stop_reason = 12;
+  repeated exa.codeium_common_pb.FilterReason filter_reasons = 13;
+  string original_text = 14;
+  repeated exa.codeium_common_pb.ChatToolCall tool_calls = 15;
+}
+
+message MockResponseData {  repeated exa.codeium_common_pb.Completion completions = 1;
 }
 
 message WorkspacePath {  string workspace_migrate_me_to_uri = 1;
@@ -35,6 +108,15 @@ message WordCount {  map<string, int64> word_count_map = 1;
 
 message SnippetWithWordCount {  string snippet = 1;
   map<string, exa.codeium_common_pb.WordCount> word_count_by_splitter = 2;
+}
+
+message GitRepoInfo {  string name = 1;
+  string owner = 2;
+  string repo_name = 5;
+  string commit = 3;
+  string version_alias = 4;
+  exa.codeium_common_pb.ScmProvider scm_provider = 6;
+  string base_git_url = 7;
 }
 
 message CodeContextItem {  string absolute_path_migrate_me_to_uri = 1;
@@ -51,6 +133,244 @@ message CodeContextItem {  string absolute_path_migrate_me_to_uri = 1;
   map<string, exa.codeium_common_pb.SnippetWithWordCount> snippet_by_type = 11;
   exa.codeium_common_pb.GitRepoInfo repo_info = 14;
   bytes file_content_hash = 15;
+}
+
+message ExperimentWithVariant {  exa.codeium_common_pb.ExperimentKey key = 1;
+  string key_string = 5;
+  bool disabled = 6;
+  string string = 2;
+  string json = 3;
+  string csv = 4;
+  exa.codeium_common_pb.ExperimentSource source = 7;
+}
+
+message ExperimentConfig {  repeated exa.codeium_common_pb.ExperimentWithVariant experiments = 6;
+  repeated exa.codeium_common_pb.ExperimentKey force_enable_experiments = 1;
+  repeated exa.codeium_common_pb.ExperimentKey force_disable_experiments = 2;
+  repeated exa.codeium_common_pb.ExperimentWithVariant force_enable_experiments_with_variants = 3;
+  repeated string force_enable_experiment_strings = 4;
+  repeated string force_disable_experiment_strings = 5;
+  bool dev_mode = 7;
+}
+
+message CompletionConfiguration {  uint64 num_completions = 1;
+  uint64 max_tokens = 2;
+  uint64 max_newlines = 3;
+  double min_log_probability = 4;
+  double temperature = 5;
+  double first_temperature = 6;
+  uint64 top_k = 7;
+  double top_p = 8;
+  repeated string stop_patterns = 9;
+  uint64 seed = 10;
+  double fim_eot_prob_threshold = 11;
+  bool use_fim_eot_threshold = 12;
+  bool do_not_score_stop_tokens = 13;
+  bool sqrt_len_normalized_log_prob_score = 14;
+  bool last_message_is_partial = 15;
+  bool return_logprob = 16;
+  string service_tier = 17;
+}
+
+message PromptElementRange {  exa.codeium_common_pb.PromptElementKind kind = 1;
+  uint64 byte_offset_start = 2;
+  uint64 byte_offset_end = 3;
+  uint64 token_offset_start = 4;
+  uint64 token_offset_end = 5;
+}
+
+message PromptElementKindInfo {  exa.codeium_common_pb.PromptElementKind kind = 1;
+  exa.codeium_common_pb.ExperimentKey experiment_key = 2;
+  bool enabled = 3;
+  uint64 num_considered = 4;
+  uint64 num_included = 5;
+}
+
+message PromptStageLatency {  string name = 1;
+  uint64 latency_ms = 2;
+}
+
+message Repository {  string computed_name = 1;
+  string git_origin_url = 2;
+  string git_upstream_url = 3;
+  string reported_name = 4;
+  string model_name = 5;
+  string submodule_url = 6;
+  string submodule_path = 7;
+}
+
+message PromptAnnotationRange {  exa.codeium_common_pb.PromptAnnotationKind kind = 1;
+  uint64 byte_offset_start = 2;
+  uint64 byte_offset_end = 3;
+  string suffix = 4;
+}
+
+message CompletionsRequest {  exa.codeium_common_pb.CompletionConfiguration configuration = 1;
+  string prompt = 2;
+  string context_prompt = 21;
+  string uid = 25;
+  repeated exa.codeium_common_pb.PromptElementRange prompt_element_ranges = 8;
+  repeated exa.codeium_common_pb.PromptElementKindInfo prompt_element_kind_infos = 9;
+  uint64 prompt_latency_ms = 11;
+  repeated exa.codeium_common_pb.PromptStageLatency prompt_stage_latencies = 12;
+  uint64 num_tokenized_bytes = 20;
+  string editor_language = 3;
+  exa.codeium_common_pb.Language language = 4;
+  string absolute_path_uri_for_telemetry = 5;
+  string relative_path_for_telemetry = 6;
+  string workspace_uri_for_telemetry = 13;
+  string experiment_features_json = 7;
+  string experiment_variant_json = 19;
+  exa.codeium_common_pb.Model model = 10;
+  bool has_line_suffix = 14;
+  bool should_inline_fim = 15;
+  exa.codeium_common_pb.Repository repository = 16;
+  string model_tag = 17;
+  repeated string experiment_tags = 18;
+  string eval_suffix = 22;
+  repeated exa.codeium_common_pb.PromptAnnotationRange prompt_annotation_ranges = 23;
+  bool supports_packed_streaming_completion_maps = 24;
+}
+
+message ErrorTrace {  string error_id = 1;
+  int64 timestamp_unix_ms = 2;
+  string stacktrace = 3;
+  bool recovered = 4;
+}
+
+message Status {  exa.codeium_common_pb.StatusLevel level = 1;
+  string message = 2;
+}
+
+message ModelOrAlias {  exa.codeium_common_pb.Model model = 1;
+  exa.codeium_common_pb.ModelAlias alias = 2;
+  string model_uid = 3;
+}
+
+message PromoStatus {  bool is_active = 1;
+  google.protobuf.Timestamp end_date = 2;
+  string label = 3;
+}
+
+message FastStatus {  bool is_active = 1;
+  string tooltip = 2;
+}
+
+message ModelFeatures {  bool supports_context_tokens = 2;
+  bool requires_instruct_tags = 3;
+  bool requires_fim_context = 4;
+  bool requires_context_snippet_prefix = 5;
+  bool requires_context_relevance_tags = 6;
+  bool requires_llama3_tokens = 7;
+  bool zero_shot_capable = 8;
+  bool requires_autocomplete_as_command = 9;
+  bool supports_cursor_aware_supercomplete = 10;
+  bool supports_images = 11;
+  bool supports_image_captions = 20;
+  bool supports_tool_calls = 12;
+  bool supports_parallel_tool_calls = 21;
+  bool supports_cumulative_context = 13;
+  bool tab_jump_print_line_range = 14;
+  bool supports_thinking = 15;
+  bool interleave_thinking = 24;
+  bool preserve_thinking = 25;
+  bool supports_estimate_token_counter = 17;
+  bool add_cursor_to_find_replace_target = 18;
+  bool supports_tab_jump_use_whole_document = 19;
+  bool requires_supercomplete_clean = 22;
+  bool tab_route_to_modal = 23;
+  bool supports_rejection_context = 26;
+}
+
+message ModelInfo {  exa.codeium_common_pb.Model model_id = 1;
+  string model_uid = 17;
+  bool is_internal = 2;
+  exa.codeium_common_pb.ModelType model_type = 3;
+  int32 max_tokens = 4;
+  string tokenizer_type = 5;
+  exa.codeium_common_pb.ModelFeatures model_features = 6;
+  exa.codeium_common_pb.APIProvider api_provider = 7;
+  string model_name = 8;
+  bool supports_context = 9;
+  int32 embed_dim = 10;
+  string base_url = 11;
+  string chat_model_name = 12;
+  int32 max_output_tokens = 13;
+  exa.codeium_common_pb.PromptTemplaterType prompt_templater_type = 14;
+  exa.codeium_common_pb.ToolFormatterType tool_formatter_type = 15;
+  string inference_server_url = 18;
+  exa.codeium_common_pb.ArenaTier arena_tier = 19;
+  repeated string harness_uids = 20;
+}
+
+message ClientModelConfig {  string label = 1;
+  exa.codeium_common_pb.ModelOrAlias model_or_alias = 2;
+  string model_uid = 22;
+  float credit_multiplier = 3;
+  exa.codeium_common_pb.ModelPricingType pricing_type = 13;
+  bool disabled = 4;
+  bool supports_images = 5;
+  bool supports_legacy = 6;
+  bool is_premium = 7;
+  string beta_warning_message = 8;
+  bool is_beta = 9;
+  exa.codeium_common_pb.ModelProvider provider = 10;
+  bool is_recommended = 11;
+  repeated exa.codeium_common_pb.TeamsTier allowed_tiers = 12;
+  exa.codeium_common_pb.APIProvider api_provider = 14;
+  bool is_new = 15;
+  bool partial_rollout = 16;
+  float rollout_fraction = 17;
+  int32 max_tokens = 18;
+  exa.codeium_common_pb.PromoStatus promo_status = 19;
+  bool is_capacity_limited = 20;
+  exa.codeium_common_pb.FastStatus fast_status = 21;
+  exa.codeium_common_pb.ModelInfo model_info = 23;
+  exa.codeium_common_pb.ModelCostTier model_cost_tier = 24;
+  exa.codeium_common_pb.ArenaTier arena_tier = 25;
+}
+
+message ClientModelGroup {  string group_name = 1;
+  repeated string model_labels = 2;
+}
+
+message ClientModelSort {  string name = 1;
+  repeated exa.codeium_common_pb.ClientModelGroup groups = 2;
+}
+
+message DefaultOverrideModelConfig {  exa.codeium_common_pb.ModelOrAlias model_or_alias_deprecated = 1;
+  string model_uid = 3;
+  string version_id = 2;
+}
+
+message ExternalModel {  bool is_internal = 1;
+  exa.codeium_common_pb.Model model_id = 2;
+  string model_name = 3;
+  string base_url = 4;
+  string api_key = 5;
+  string access_key = 6;
+  string secret_access_key = 7;
+  string region = 8;
+  string project_id = 9;
+  uint32 id = 10;
+  int32 max_completion_tokens = 11;
+  int32 max_input_tokens = 12;
+}
+
+message Event {  exa.codeium_common_pb.EventType event_type = 1;
+  string event_json = 2;
+  int64 timestamp_unix_ms = 3;
+}
+
+message PathScopeItem {  string absolute_path_migrate_me_to_uri = 1;
+  string absolute_uri = 5;
+  map<string, string> workspace_relative_paths_migrate_me_to_workspace_uris = 2;
+  map<string, string> workspace_uris_to_relative_paths = 6;
+  uint32 num_files = 3;
+  uint64 num_bytes = 4;
+}
+
+message RepositoryScopeItem {  exa.codeium_common_pb.GitRepoInfo repo_info = 1;
 }
 
 message ContextSubrange {  exa.codeium_common_pb.ContextSnippetType snippet_type = 1;
@@ -164,6 +484,63 @@ message GithubPullRequestItem {  string url = 1;
   string number = 4;
 }
 
+message CodeMapScopeItem {  string title = 1;
+  string content = 2;
+  string description = 3;
+  string location = 4;
+}
+
+message McpPromptScopeItem {  string server_name = 1;
+  string prompt_name = 2;
+  map<string, string> arguments = 3;
+  string resolved_content = 4;
+}
+
+message SkillScopeItem {  string skill_name = 1;
+  string description = 2;
+  string uri = 3;
+  int32 resource_count = 4;
+  string base_dir = 5;
+  string content = 6;
+}
+
+message PlanFileScopeItem {  string plan_path = 1;
+  string title = 2;
+  string description = 3;
+  bool request_implementation = 4;
+}
+
+message GitCommitData {  string sha = 1;
+  string short_sha = 2;
+  string subject = 3;
+  string author = 4;
+  google.protobuf.Timestamp timestamp = 5;
+  int32 insertions = 6;
+  int32 deletions = 7;
+}
+
+message GitDiffData {  string branch_name = 1;
+  string base_branch = 2;
+  string merge_base_sha = 3;
+  int32 files_changed = 4;
+  int32 insertions = 5;
+  int32 deletions = 6;
+  string branch_head_sha = 7;
+}
+
+message GitWorkingChangesData {  int32 staged_count = 1;
+  int32 unstaged_count = 2;
+  int32 untracked_count = 3;
+}
+
+message GitScopeItem {  string repo_root_uri = 1;
+  string repo_display_name = 6;
+  exa.codeium_common_pb.GitCommitData commit = 2;
+  exa.codeium_common_pb.GitDiffData diff = 3;
+  exa.codeium_common_pb.GitWorkingChangesData working_changes = 4;
+  string formatted_content = 5;
+}
+
 message ContextScopeItem {  exa.codeium_common_pb.PathScopeItem file = 1;
   exa.codeium_common_pb.PathScopeItem directory = 2;
   exa.codeium_common_pb.RepositoryScopeItem repository = 3;
@@ -189,74 +566,23 @@ message ContextScopeItem {  exa.codeium_common_pb.PathScopeItem file = 1;
   exa.codeium_common_pb.UserActivityScopeItem user_activity = 24;
   exa.codeium_common_pb.TerminalScopeItem terminal = 25;
   exa.codeium_common_pb.GithubPullRequestItem github_pull_request = 26;
+  exa.codeium_common_pb.CodeMapScopeItem code_map = 27;
+  exa.codeium_common_pb.McpPromptScopeItem mcp_prompt = 28;
+  exa.codeium_common_pb.SkillScopeItem skill = 29;
+  exa.codeium_common_pb.PlanFileScopeItem plan_file = 30;
+  exa.codeium_common_pb.GitScopeItem git = 31;
 }
 
-message TextOrScopeItem {  string text = 1;
-  exa.codeium_common_pb.ContextScopeItem item = 2;
+message ContextScope {  repeated exa.codeium_common_pb.ContextScopeItem items = 1;
 }
 
-message ImageData {  string base64_data = 1;
-  string mime_type = 2;
-  string caption = 3;
+message ActionPointer {  string cortex_plan_id = 1;
+  string code_plan_id = 2;
+  int32 action_index = 3;
 }
 
-message Metadata {  string ide_name = 1;
-  string ide_version = 7;
-  string ide_type = 28;
-  string extension_name = 12;
-  string extension_version = 2;
-  string api_key = 3;
-  string locale = 4;
-  string os = 5;
-  string hardware = 8;
-  bool disable_telemetry = 6;
-  string session_id = 10;
-  google.protobuf.Timestamp ls_timestamp = 16;
-  uint64 request_id = 9;
-  string source_address = 11;
-  string user_agent = 13;
-  string url = 14;
-  exa.codeium_common_pb.AuthSource auth_source = 15;
-  string extension_path = 17;
-  string user_id = 20;
-  string user_jwt = 21;
-  string force_team_id = 22;
-  string device_fingerprint = 24;
-  string trigger_id = 25;
-  string plan_name = 26;
-  string id = 27;
-  string impersonate_tier = 29;
-}
-
-message TerminalShellCommandHeader {  exa.codeium_common_pb.Metadata metadata = 7;
-  string terminal_id = 1;
-  uint32 shell_pid = 2;
-  string command_line = 3;
-  string cwd = 4;
-  google.protobuf.Timestamp start_time = 5;
-  exa.codeium_common_pb.TerminalShellCommandSource source = 6;
-}
-
-message TerminalShellCommandData {  bytes raw_data = 1;
-}
-
-message TerminalShellCommandTrailer {  int32 exit_code = 1;
-  google.protobuf.Timestamp end_time = 2;
-}
-
-message TerminalShellCommandStreamChunk {  exa.codeium_common_pb.TerminalShellCommandHeader header = 1;
-  exa.codeium_common_pb.TerminalShellCommandData data = 2;
-  exa.codeium_common_pb.TerminalShellCommandTrailer trailer = 3;
-}
-
-message DocumentPosition {  uint64 row = 1;
-  uint64 col = 2;
-}
-
-message Range {  uint64 start_offset = 1;
-  uint64 end_offset = 2;
-  exa.codeium_common_pb.DocumentPosition start_position = 3;
-  exa.codeium_common_pb.DocumentPosition end_position = 4;
+message DiagnosticFix {  string id = 1;
+  string title = 2;
 }
 
 message CodeDiagnostic {  exa.codeium_common_pb.Range range = 1;
@@ -267,25 +593,31 @@ message CodeDiagnostic {  exa.codeium_common_pb.Range range = 1;
   string id = 6;
   exa.codeium_common_pb.Language language = 7;
   int64 score = 8;
+  repeated exa.codeium_common_pb.DiagnosticFix fixes = 9;
 }
 
-message LspReference {  string uri = 1;
-  exa.codeium_common_pb.Range range = 2;
-  string snippet = 3;
+message TerminalCommandData {  string terminal_id = 1;
+  string platform = 2;
+  string cwd = 3;
+  string shell_name = 4;
 }
 
-message GRPCStatus {  int32 code = 1;
-  string message = 2;
+message IntellisenseSuggestion {  exa.codeium_common_pb.Range range = 1;
+  string text = 2;
+  string label = 3;
+  string label_detail = 4;
+  string description = 5;
+  string detail = 6;
+  string documentation = 7;
+  string kind = 8;
+  bool selected = 9;
 }
 
-message ChatToolCall {  string id = 1;
-  string name = 2;
-  string arguments_json = 3;
-  string invalid_json_str = 4;
-  string invalid_json_err = 5;
+message SuperCompleteFilterReason {  string reason = 1;
 }
 
-message ModelUsageStats {  exa.codeium_common_pb.Model model = 1;
+message ModelUsageStats {  exa.codeium_common_pb.Model model_deprecated = 1;
+  string model_uid = 9;
   uint64 input_tokens = 2;
   uint64 output_tokens = 3;
   uint64 cache_write_tokens = 4;
@@ -295,10 +627,6 @@ message ModelUsageStats {  exa.codeium_common_pb.Model model = 1;
   map<string, string> response_header = 8;
 }
 
-message ModelOrAlias {  exa.codeium_common_pb.Model model = 1;
-  exa.codeium_common_pb.ModelAlias alias = 2;
-}
-
 message DeployTarget {  exa.codeium_common_pb.DeploymentProvider deployment_provider = 1;
   bool is_sandbox = 2;
   string provider_team_id = 3;
@@ -306,32 +634,13 @@ message DeployTarget {  exa.codeium_common_pb.DeploymentProvider deployment_prov
   string domain = 5;
 }
 
-message NotebookTrackedInfo {  string text = 1;
-  uint64 cursor_offset = 2;
+message ImageData {  string base64_data = 1;
+  string mime_type = 2;
+  string caption = 3;
 }
 
-message Document {  string absolute_path_migrate_me_to_uri = 1;
-  string absolute_uri = 12;
-  string relative_path_migrate_me_to_workspace_uri = 2;
-  string workspace_uri = 13;
-  string text = 3;
-  string editor_language = 4;
-  exa.codeium_common_pb.Language language = 5;
-  uint64 cursor_offset = 6;
-  exa.codeium_common_pb.DocumentPosition cursor_position = 8;
-  string line_ending = 7;
-  exa.codeium_common_pb.Range visible_range = 9;
-  bool is_cutoff_start = 10;
-  bool is_cutoff_end = 11;
-  int32 lines_cutoff_start = 14;
-  int32 lines_cutoff_end = 15;
-  google.protobuf.Timestamp timestamp = 16;
-  bool is_dirty = 17;
-  bool is_synthetic = 18;
-  bool is_notebook = 19;
-  exa.codeium_common_pb.NotebookTrackedInfo notebook_tracked_info = 20;
-  google.protobuf.Timestamp last_access_time = 21;
-  repeated exa.codeium_common_pb.Range selections = 22;
+message TextOrScopeItem {  string text = 1;
+  exa.codeium_common_pb.ContextScopeItem item = 2;
 }
 
 message DocumentQuery {  string text = 1;
@@ -448,21 +757,6 @@ message MQueryConfig {  bool should_batch_ccis = 1;
   uint32 top_cci_count = 10;
 }
 
-message PromptAnnotationRange {  exa.codeium_common_pb.PromptAnnotationKind kind = 1;
-  uint64 byte_offset_start = 2;
-  uint64 byte_offset_end = 3;
-  string suffix = 4;
-}
-
-message Repository {  string computed_name = 1;
-  string git_origin_url = 2;
-  string git_upstream_url = 3;
-  string reported_name = 4;
-  string model_name = 5;
-  string submodule_url = 6;
-  string submodule_path = 7;
-}
-
 message WindsurfDeployment {  string windsurf_deployment_id = 1;
   string auth_uid = 2;
   exa.codeium_common_pb.DeploymentProvider deployment_provider = 3;
@@ -492,6 +786,11 @@ message TextData {  string text = 1;
   string mime_type = 2;
 }
 
+message LspReference {  string uri = 1;
+  exa.codeium_common_pb.Range range = 2;
+  string snippet = 3;
+}
+
 message CodeAnnotation {  string id = 1;
   string uri = 2;
   uint32 line = 3;
@@ -499,202 +798,8 @@ message CodeAnnotation {  string id = 1;
   google.protobuf.Timestamp created_at = 5;
 }
 
-message EditorOptions {  uint64 tab_size = 1;
-  bool insert_spaces = 2;
-  bool disable_autocomplete_in_comments = 3;
-}
-
-message Completion {  string completion_id = 1;
-  string request_uid = 17;
-  string text = 2;
-  string stop = 4;
-  double score = 5;
-  repeated uint64 tokens = 6;
-  repeated string decoded_tokens = 7;
-  repeated double probabilities = 8;
-  repeated double adjusted_probabilities = 9;
-  repeated double logprobs = 16;
-  uint64 generated_length = 10;
-  exa.codeium_common_pb.StopReason stop_reason = 12;
-  repeated exa.codeium_common_pb.FilterReason filter_reasons = 13;
-  string original_text = 14;
-  repeated exa.codeium_common_pb.ChatToolCall tool_calls = 15;
-}
-
-message MockResponseData {  repeated exa.codeium_common_pb.Completion completions = 1;
-}
-
-message ExperimentWithVariant {  exa.codeium_common_pb.ExperimentKey key = 1;
-  string key_string = 5;
-  bool disabled = 6;
-  string string = 2;
-  string json = 3;
-  string csv = 4;
-  exa.codeium_common_pb.ExperimentSource source = 7;
-}
-
-message ExperimentConfig {  repeated exa.codeium_common_pb.ExperimentWithVariant experiments = 6;
-  repeated exa.codeium_common_pb.ExperimentKey force_enable_experiments = 1;
-  repeated exa.codeium_common_pb.ExperimentKey force_disable_experiments = 2;
-  repeated exa.codeium_common_pb.ExperimentWithVariant force_enable_experiments_with_variants = 3;
-  repeated string force_enable_experiment_strings = 4;
-  repeated string force_disable_experiment_strings = 5;
-  bool dev_mode = 7;
-}
-
-message CompletionConfiguration {  uint64 num_completions = 1;
-  uint64 max_tokens = 2;
-  uint64 max_newlines = 3;
-  double min_log_probability = 4;
-  double temperature = 5;
-  double first_temperature = 6;
-  uint64 top_k = 7;
-  double top_p = 8;
-  repeated string stop_patterns = 9;
-  uint64 seed = 10;
-  double fim_eot_prob_threshold = 11;
-  bool use_fim_eot_threshold = 12;
-  bool do_not_score_stop_tokens = 13;
-  bool sqrt_len_normalized_log_prob_score = 14;
-  bool last_message_is_partial = 15;
-  bool return_logprob = 16;
-}
-
-message PromptElementRange {  exa.codeium_common_pb.PromptElementKind kind = 1;
-  uint64 byte_offset_start = 2;
-  uint64 byte_offset_end = 3;
-  uint64 token_offset_start = 4;
-  uint64 token_offset_end = 5;
-}
-
-message PromptElementKindInfo {  exa.codeium_common_pb.PromptElementKind kind = 1;
-  exa.codeium_common_pb.ExperimentKey experiment_key = 2;
-  bool enabled = 3;
-  uint64 num_considered = 4;
-  uint64 num_included = 5;
-}
-
-message PromptStageLatency {  string name = 1;
-  uint64 latency_ms = 2;
-}
-
-message CompletionsRequest {  exa.codeium_common_pb.CompletionConfiguration configuration = 1;
-  string prompt = 2;
-  string context_prompt = 21;
-  string uid = 25;
-  repeated exa.codeium_common_pb.PromptElementRange prompt_element_ranges = 8;
-  repeated exa.codeium_common_pb.PromptElementKindInfo prompt_element_kind_infos = 9;
-  uint64 prompt_latency_ms = 11;
-  repeated exa.codeium_common_pb.PromptStageLatency prompt_stage_latencies = 12;
-  uint64 num_tokenized_bytes = 20;
-  string editor_language = 3;
-  exa.codeium_common_pb.Language language = 4;
-  string absolute_path_uri_for_telemetry = 5;
-  string relative_path_for_telemetry = 6;
-  string workspace_uri_for_telemetry = 13;
-  string experiment_features_json = 7;
-  string experiment_variant_json = 19;
-  exa.codeium_common_pb.Model model = 10;
-  bool has_line_suffix = 14;
-  bool should_inline_fim = 15;
-  exa.codeium_common_pb.Repository repository = 16;
-  string model_tag = 17;
-  repeated string experiment_tags = 18;
-  string eval_suffix = 22;
-  repeated exa.codeium_common_pb.PromptAnnotationRange prompt_annotation_ranges = 23;
-  bool supports_packed_streaming_completion_maps = 24;
-}
-
-message ErrorTrace {  string error_id = 1;
-  int64 timestamp_unix_ms = 2;
-  string stacktrace = 3;
-  bool recovered = 4;
-}
-
-message Status {  exa.codeium_common_pb.StatusLevel level = 1;
-  string message = 2;
-}
-
-message ClientModelConfig {  string label = 1;
-  exa.codeium_common_pb.ModelOrAlias model_or_alias = 2;
-  float credit_multiplier = 3;
-  exa.codeium_common_pb.ModelPricingType pricing_type = 13;
-  bool disabled = 4;
-  bool supports_images = 5;
-  bool supports_legacy = 6;
-  bool is_premium = 7;
-  string beta_warning_message = 8;
-  bool is_beta = 9;
-  exa.codeium_common_pb.ModelProvider provider = 10;
-  bool is_recommended = 11;
-  repeated exa.codeium_common_pb.TeamsTier allowed_tiers = 12;
-  exa.codeium_common_pb.APIProvider api_provider = 14;
-  bool is_new = 15;
-}
-
-message ClientModelGroup {  string group_name = 1;
-  repeated string model_labels = 2;
-}
-
-message ClientModelSort {  string name = 1;
-  repeated exa.codeium_common_pb.ClientModelGroup groups = 2;
-}
-
-message DefaultOverrideModelConfig {  exa.codeium_common_pb.ModelOrAlias model_or_alias = 1;
-  string version_id = 2;
-}
-
-message ExternalModel {  bool is_internal = 1;
-  exa.codeium_common_pb.Model model_id = 2;
-  string model_name = 3;
-  string base_url = 4;
-  string api_key = 5;
-  string access_key = 6;
-  string secret_access_key = 7;
-  string region = 8;
-  string project_id = 9;
-  uint32 id = 10;
-  int32 max_completion_tokens = 11;
-  int32 max_input_tokens = 12;
-}
-
-message Event {  exa.codeium_common_pb.EventType event_type = 1;
-  string event_json = 2;
-  int64 timestamp_unix_ms = 3;
-}
-
-message EmbeddingMetadata {  string node_name = 1;
-  uint32 start_line = 2;
-  uint32 end_line = 3;
-  exa.codeium_common_pb.EmbedType embed_type = 4;
-}
-
-message ContextScope {  repeated exa.codeium_common_pb.ContextScopeItem items = 1;
-}
-
-message ActionPointer {  string cortex_plan_id = 1;
-  string code_plan_id = 2;
-  int32 action_index = 3;
-}
-
-message TerminalCommandData {  string terminal_id = 1;
-  string platform = 2;
-  string cwd = 3;
-  string shell_name = 4;
-}
-
-message IntellisenseSuggestion {  exa.codeium_common_pb.Range range = 1;
-  string text = 2;
-  string label = 3;
-  string label_detail = 4;
-  string description = 5;
-  string detail = 6;
-  string documentation = 7;
-  string kind = 8;
-  bool selected = 9;
-}
-
-message SuperCompleteFilterReason {  string reason = 1;
+message FileRangeContent {  string content = 1;
+  exa.codeium_common_pb.FileLineRange source = 2;
 }
 
 message WorkspaceStats {  string workspace = 3;
@@ -706,28 +811,6 @@ message WorkspaceStats {  string workspace = 3;
 message PartialIndexMetadata {  uint32 num_total_files = 1;
   uint32 num_indexed_files = 2;
   google.protobuf.Timestamp cutoff_timestamp = 3;
-}
-
-message McpCommandTemplate {  string command = 1;
-  repeated string args = 2;
-  map<string, string> env = 3;
-}
-
-message McpCommandVariable {  string name = 1;
-  string title = 2;
-  string description = 3;
-  string link = 4;
-}
-
-message McpServerCommand {  exa.codeium_common_pb.McpCommandTemplate template = 1;
-  repeated exa.codeium_common_pb.McpCommandVariable variables = 2;
-}
-
-message McpServerTemplate {  string title = 1;
-  string id = 2;
-  string link = 3;
-  string description = 4;
-  map<string, exa.codeium_common_pb.McpServerCommand> commands = 5;
 }
 
 message FunctionInfo {  string raw_source = 1;
@@ -815,6 +898,16 @@ message TeamConfig {  string team_id = 1;
   bool allow_vibe_and_replace = 27;
   bool disable_deepwiki = 28;
   exa.codeium_common_pb.CustomProviderSettings custom_provider_settings = 29;
+  int32 user_add_on_credit_cap = 30;
+  bool disable_codemaps = 31;
+  string allow_codemap_sharing = 32;
+  bool disable_fast_context = 33;
+  bool disable_lifeguard = 34;
+  repeated string allowed_ip_ranges = 35;
+  exa.codeium_common_pb.CascadeCommandsAutoExecution max_cascade_auto_execution_level = 37;
+  bool cascade_web_search_enabled = 38;
+  repeated string terminal_allow_list = 39;
+  repeated string terminal_deny_list = 40;
 }
 
 message TeamsFeaturesMetadata {  bool is_active = 1;
@@ -841,6 +934,7 @@ message PlanInfo {  exa.codeium_common_pb.TeamsTier teams_tier = 1;
   int32 monthly_flex_credit_purchase_amount = 14;
   bool is_teams = 17;
   bool is_enterprise = 16;
+  bool has_paid_features = 32;
   bool can_buy_more_credits = 18;
   bool cascade_web_search_enabled = 19;
   bool can_customize_app_icon = 20;
@@ -879,14 +973,17 @@ message UserSettings {  bool open_most_recent_chat_conversation = 1;
   string last_selected_model_name = 8;
   repeated exa.codeium_common_pb.CascadeNUXState cascade_nux_states = 11;
   map<uint32, bool> seen_nux_uids = 60;
-  exa.codeium_common_pb.Model last_selected_cascade_model = 9;
-  exa.codeium_common_pb.ModelOrAlias last_selected_cascade_model_or_alias = 30;
+  exa.codeium_common_pb.Model last_selected_cascade_model_deprecated = 9;
+  exa.codeium_common_pb.ModelOrAlias last_selected_cascade_model_or_alias_deprecated = 30;
+  string last_selected_cascade_model_uid = 91;
   exa.codeium_common_pb.ConversationalPlannerMode cascade_planner_mode = 13;
-  exa.codeium_common_pb.ClaudeCodeMode claude_code_mode = 73;
   exa.codeium_common_pb.Model last_model_override = 46;
   string last_model_default_override_version_id = 58;
-  repeated string cascade_allowed_commands = 14;
-  repeated string cascade_denied_commands = 15;
+  bool cascade_model_explicitly_set = 87;
+  repeated string cascade_allowed_commands_prefix = 14;
+  repeated string cascade_denied_commands_prefix = 15;
+  repeated string cascade_allowed_commands = 85;
+  repeated string cascade_denied_commands = 86;
   repeated exa.codeium_common_pb.UserNUXState user_nux_states = 17;
   bool cascade_web_search_disabled = 18;
   bool disable_autocomplete = 19;
@@ -924,8 +1021,6 @@ message UserSettings {  bool open_most_recent_chat_conversation = 1;
   exa.codeium_common_pb.PlanMode global_plan_mode_preference = 54;
   repeated exa.codeium_common_pb.ClientModelConfig cached_cascade_model_configs = 52;
   repeated exa.codeium_common_pb.ClientModelSort cached_cascade_model_sorts = 53;
-  exa.codeium_common_pb.CascadeRunExtensionCode cascade_run_extension_code = 56;
-  exa.codeium_common_pb.CascadeRunExtensionCodeAutoRun cascade_run_extension_code_auto_run = 57;
   exa.codeium_common_pb.AutoContinueOnMaxGeneratorInvocations auto_continue_on_max_generator_invocations = 59;
   repeated string recently_used_cascade_models = 61;
   repeated string cascade_dismissed_suggestion_workspaces = 62;
@@ -933,54 +1028,21 @@ message UserSettings {  bool open_most_recent_chat_conversation = 1;
   bool enable_automatic_screenshot = 64;
   exa.codeium_common_pb.BrowserExperimentalFeaturesConfig browser_experimental_features_config = 66;
   exa.codeium_common_pb.CommandPopupAutocomplete command_popup_autocomplete = 67;
-  string claude_code_cli_path = 68;
-  string claude_code_system_prompt = 70;
-  uint32 claude_code_max_turns = 71;
-  string claude_code_mcp_config = 72;
-  repeated string claude_code_directories = 74;
-  string claude_code_system_prompt_append = 75;
-  string claude_code_model = 76;
+  bool enable_instant_context_agent = 77;
+  bool disable_instant_context_agent = 78;
+  exa.codeium_common_pb.Model last_selected_smart_friend_model_deprecated = 79;
+  string last_selected_smart_friend_model_uid = 92;
+  bool enable_cascade_completion_notifications = 81;
+  bool enable_cascade_always_notify_on_finish = 82;
+  exa.codeium_common_pb.CompletionMode completion_mode = 83;
+  bool enable_inlay_hint_shortcuts = 84;
+  repeated string cascade_user_allowed_web_origins = 88;
+  repeated string cascade_removed_default_web_origins = 89;
+  exa.codeium_common_pb.CascadeWebRequestsAutoExecution cascade_web_requests_auto_execution_policy = 90;
+  repeated string last_specific_arena_model_uids = 93;
 }
 
 message LanguageServerDiagnostics {  repeated string logs = 1;
-}
-
-message CompletionStatistics {  uint32 num_acceptances = 1;
-  uint32 num_rejections = 2;
-  uint32 num_lines_accepted = 3;
-  uint32 num_bytes_accepted = 4;
-  uint32 num_users = 5;
-  uint32 active_developer_days = 6;
-  uint32 active_developer_hours = 7;
-}
-
-message CompletionByDateEntry {  google.protobuf.Timestamp timestamp = 1;
-  exa.codeium_common_pb.CompletionStatistics completion_statistics = 2;
-}
-
-message CompletionByLanguageEntry {  exa.codeium_common_pb.Language language = 1;
-  exa.codeium_common_pb.CompletionStatistics completion_statistics = 2;
-}
-
-message ChatStats {  uint64 chats_sent = 1;
-  uint64 chats_received = 2;
-  uint64 chats_accepted = 3;
-  uint64 chats_inserted_at_cursor = 4;
-  uint64 chats_applied = 5;
-  uint64 chat_loc_used = 6;
-  uint64 chat_code_blocks_used = 7;
-  uint64 function_explain_count = 8;
-  uint64 function_docstring_count = 9;
-  uint64 function_refactor_count = 10;
-  uint64 code_block_explain_count = 11;
-  uint64 code_block_refactor_count = 12;
-  uint64 problem_explain_count = 13;
-  uint64 function_unit_tests_count = 14;
-  uint32 active_developer_days = 15;
-}
-
-message ChatStatsByModelEntry {  exa.codeium_common_pb.Model model_id = 1;
-  exa.codeium_common_pb.ChatStats chat_stats = 2;
 }
 
 message TopUpStatus {  exa.codeium_common_pb.TransactionStatus top_up_transaction_status = 1;
@@ -1001,6 +1063,7 @@ message PlanStatus {  exa.codeium_common_pb.PlanInfo plan_info = 1;
   int32 used_flow_credits = 5;
   int32 used_prompt_credits = 6;
   exa.codeium_common_pb.TopUpStatus top_up_status = 10;
+  bool was_reduced_by_orphaned_usage = 11;
 }
 
 message CascadeModelConfigData {  repeated exa.codeium_common_pb.ClientModelConfig client_model_configs = 1;
@@ -1017,8 +1080,8 @@ message UserStatus {  bool pro = 1;
   string email = 7;
   repeated exa.codeium_common_pb.UserFeatures user_features = 9;
   repeated exa.codeium_common_pb.TeamsFeatures teams_features = 8;
+  exa.codeium_common_pb.TeamsTier teams_tier = 10;
   repeated exa.codeium_common_pb.Permission permissions = 11;
-  exa.codeium_common_pb.PlanInfo plan_info = 12;
   exa.codeium_common_pb.PlanStatus plan_status = 13;
   bool has_used_windsurf = 31;
   int64 user_used_prompt_credits = 28;
@@ -1026,6 +1089,8 @@ message UserStatus {  bool pro = 1;
   bool has_fingerprint_set = 30;
   exa.codeium_common_pb.TeamConfig team_config = 32;
   exa.codeium_common_pb.CascadeModelConfigData cascade_model_config_data = 33;
+  google.protobuf.Timestamp windsurf_pro_trial_end_time = 34;
+  int64 max_num_premium_chat_messages = 35;
 }
 
 message CaptureFileRequestData {  exa.codeium_common_pb.Metadata metadata = 1;
@@ -1037,6 +1102,28 @@ message CaptureFileRequestData {  exa.codeium_common_pb.Metadata metadata = 1;
   uint64 end_offset = 7;
   uint64 cursor_line = 8;
   uint64 cursor_column = 9;
+}
+
+message TerminalShellCommandHeader {  exa.codeium_common_pb.Metadata metadata = 7;
+  string terminal_id = 1;
+  string command_line = 3;
+  string cwd = 4;
+  google.protobuf.Timestamp start_time = 5;
+  exa.codeium_common_pb.TerminalShellCommandSource source = 6;
+}
+
+message TerminalShellCommandData {  bytes raw_data = 1;
+}
+
+message TerminalShellCommandTrailer {  int32 exit_code = 1;
+  google.protobuf.Timestamp end_time = 2;
+  string full_output = 3;
+  string ansi_output = 4;
+}
+
+message TerminalShellCommandStreamChunk {  exa.codeium_common_pb.TerminalShellCommandHeader header = 1;
+  exa.codeium_common_pb.TerminalShellCommandData data = 2;
+  exa.codeium_common_pb.TerminalShellCommandTrailer trailer = 3;
 }
 
 message WebDocsOption {  string label = 1;
@@ -1052,6 +1139,7 @@ message UnleashContext {  string user_id = 1;
 }
 
 message ModelStatusInfo {  exa.codeium_common_pb.Model model = 1;
+  string model_uid = 4;
   string message = 2;
   exa.codeium_common_pb.ModelStatus status = 3;
 }
@@ -1062,64 +1150,67 @@ message TeamOrganizationalControls {  string team_id = 1;
   google.protobuf.Timestamp created_at = 4;
   google.protobuf.Timestamp updated_at = 5;
   repeated string extension_model_labels = 6;
+  repeated exa.codeium_common_pb.APIProvider allowed_api_providers = 8;
+  repeated string cli_model_labels = 9;
 }
 
-message CascadeNUXConfig {  uint32 uid = 1;
-  exa.codeium_common_pb.CascadeNUXLocation location = 2;
-  exa.codeium_common_pb.CascadeNUXTrigger trigger = 3;
-  string analytics_event_name = 4;
-  string main_text = 5;
-  string on_hover_explanation = 6;
-  string learn_more_url = 7;
-  int32 priority = 8;
-  exa.codeium_common_pb.CascadeNUXEvent old_nux_event = 9;
-  exa.codeium_common_pb.CascadeNUXIcon icon = 10;
-  bool requires_idle_cascade = 11;
+message GRPCStatus {  int32 code = 1;
+  string message = 2;
 }
 
+message LifeguardModeConfig {  bool enabled = 1;
+  exa.codeium_common_pb.Model model = 2;
+  string model_display_name = 3;
+  string agent_version = 4;
+}
+
+message LifeguardConfig {  map<string, exa.codeium_common_pb.LifeguardModeConfig> modes = 1;
+}
+
+enum AuthSource {  AUTH_SOURCE_CODEIUM = 0;  AUTH_SOURCE_DEEPNOTE = 1;  AUTH_SOURCE_CODESANDBOX = 2;  AUTH_SOURCE_STACKBLITZ = 3;  AUTH_SOURCE_VALTOWN = 4;  AUTH_SOURCE_HEX = 5;  AUTH_SOURCE_ZAPIER = 6;  AUTH_SOURCE_SUPERBLOCKS = 7;  AUTH_SOURCE_EMBARCADERO = 8;}
+enum Language {  LANGUAGE_UNSPECIFIED = 0;  LANGUAGE_C = 1;  LANGUAGE_CLOJURE = 2;  LANGUAGE_COFFEESCRIPT = 3;  LANGUAGE_CPP = 4;  LANGUAGE_CSHARP = 5;  LANGUAGE_CSS = 6;  LANGUAGE_CUDACPP = 7;  LANGUAGE_DOCKERFILE = 8;  LANGUAGE_GO = 9;  LANGUAGE_GROOVY = 10;  LANGUAGE_HANDLEBARS = 11;  LANGUAGE_HASKELL = 12;  LANGUAGE_HCL = 13;  LANGUAGE_HTML = 14;  LANGUAGE_INI = 15;  LANGUAGE_JAVA = 16;  LANGUAGE_JAVASCRIPT = 17;  LANGUAGE_JSON = 18;  LANGUAGE_JULIA = 19;  LANGUAGE_KOTLIN = 20;  LANGUAGE_LATEX = 21;  LANGUAGE_LESS = 22;  LANGUAGE_LUA = 23;  LANGUAGE_MAKEFILE = 24;  LANGUAGE_MARKDOWN = 25;  LANGUAGE_OBJECTIVEC = 26;  LANGUAGE_OBJECTIVECPP = 27;  LANGUAGE_PERL = 28;  LANGUAGE_PHP = 29;  LANGUAGE_PLAINTEXT = 30;  LANGUAGE_PROTOBUF = 31;  LANGUAGE_PBTXT = 32;  LANGUAGE_PYTHON = 33;  LANGUAGE_R = 34;  LANGUAGE_RUBY = 35;  LANGUAGE_RUST = 36;  LANGUAGE_SASS = 37;  LANGUAGE_SCALA = 38;  LANGUAGE_SCSS = 39;  LANGUAGE_SHELL = 40;  LANGUAGE_SQL = 41;  LANGUAGE_STARLARK = 42;  LANGUAGE_SWIFT = 43;  LANGUAGE_TSX = 44;  LANGUAGE_TYPESCRIPT = 45;  LANGUAGE_VISUALBASIC = 46;  LANGUAGE_VUE = 47;  LANGUAGE_XML = 48;  LANGUAGE_XSL = 49;  LANGUAGE_YAML = 50;  LANGUAGE_SVELTE = 51;  LANGUAGE_TOML = 52;  LANGUAGE_DART = 53;  LANGUAGE_RST = 54;  LANGUAGE_OCAML = 55;  LANGUAGE_CMAKE = 56;  LANGUAGE_PASCAL = 57;  LANGUAGE_ELIXIR = 58;  LANGUAGE_FSHARP = 59;  LANGUAGE_LISP = 60;  LANGUAGE_MATLAB = 61;  LANGUAGE_POWERSHELL = 62;  LANGUAGE_SOLIDITY = 63;  LANGUAGE_ADA = 64;  LANGUAGE_OCAML_INTERFACE = 65;  LANGUAGE_TREE_SITTER_QUERY = 66;  LANGUAGE_APL = 67;  LANGUAGE_ASSEMBLY = 68;  LANGUAGE_COBOL = 69;  LANGUAGE_CRYSTAL = 70;  LANGUAGE_EMACS_LISP = 71;  LANGUAGE_ERLANG = 72;  LANGUAGE_FORTRAN = 73;  LANGUAGE_FREEFORM = 74;  LANGUAGE_GRADLE = 75;  LANGUAGE_HACK = 76;  LANGUAGE_MAVEN = 77;  LANGUAGE_M68KASSEMBLY = 78;  LANGUAGE_SAS = 79;  LANGUAGE_UNIXASSEMBLY = 80;  LANGUAGE_VBA = 81;  LANGUAGE_VIMSCRIPT = 82;  LANGUAGE_WEBASSEMBLY = 83;  LANGUAGE_BLADE = 84;  LANGUAGE_ASTRO = 85;  LANGUAGE_MUMPS = 86;  LANGUAGE_GDSCRIPT = 87;  LANGUAGE_NIM = 88;  LANGUAGE_PROLOG = 89;  LANGUAGE_MARKDOWN_INLINE = 90;  LANGUAGE_APEX = 91;  LANGUAGE_JUPYTER_NOTEBOOK = 92;}
+enum StopReason {  STOP_REASON_UNSPECIFIED = 0;  STOP_REASON_INCOMPLETE = 1;  STOP_REASON_STOP_PATTERN = 2;  STOP_REASON_MAX_TOKENS = 3;  STOP_REASON_MIN_LOG_PROB = 4;  STOP_REASON_MAX_NEWLINES = 5;  STOP_REASON_EXIT_SCOPE = 6;  STOP_REASON_NONFINITE_LOGIT_OR_PROB = 7;  STOP_REASON_FIRST_NON_WHITESPACE_LINE = 8;  STOP_REASON_PARTIAL = 9;  STOP_REASON_FUNCTION_CALL = 10;  STOP_REASON_CONTENT_FILTER = 11;  STOP_REASON_NON_INSERTION = 12;  STOP_REASON_ERROR = 13;}
+enum FilterReason {  FILTER_REASON_NONE = 0;  FILTER_REASON_INCOMPLETE = 1;  FILTER_REASON_EMPTY = 2;  FILTER_REASON_REPETITIVE = 3;  FILTER_REASON_DUPLICATE = 4;  FILTER_REASON_LONG_LINE = 5;  FILTER_REASON_COMPLETIONS_CUTOFF = 6;  FILTER_REASON_ATTRIBUTION = 7;  FILTER_REASON_NON_MATCHING = 8;  FILTER_REASON_NON_INSERTION = 9;}
+enum CodeContextType {  CODE_CONTEXT_TYPE_UNSPECIFIED = 0;  CODE_CONTEXT_TYPE_FUNCTION = 1;  CODE_CONTEXT_TYPE_CLASS = 2;  CODE_CONTEXT_TYPE_IMPORT = 3;  CODE_CONTEXT_TYPE_NAIVE_LINECHUNK = 4;  CODE_CONTEXT_TYPE_REFERENCE_FUNCTION = 5;  CODE_CONTEXT_TYPE_REFERENCE_CLASS = 6;  CODE_CONTEXT_TYPE_FILE = 7;  CODE_CONTEXT_TYPE_TERMINAL = 8;  CODE_CONTEXT_TYPE_DIRECTORY = 9;}
 enum ScmProvider {  SCM_PROVIDER_UNSPECIFIED = 0;  SCM_PROVIDER_GITHUB = 1;  SCM_PROVIDER_GITLAB = 2;  SCM_PROVIDER_BITBUCKET = 3;  SCM_PROVIDER_AZURE_DEVOPS = 4;}
-enum CodeContextType {  CODE_CONTEXT_TYPE_UNSPECIFIED = 0;  CODE_CONTEXT_TYPE_FUNCTION = 1;  CODE_CONTEXT_TYPE_CLASS = 2;  CODE_CONTEXT_TYPE_IMPORT = 3;  CODE_CONTEXT_TYPE_NAIVE_LINECHUNK = 4;  CODE_CONTEXT_TYPE_REFERENCE_FUNCTION = 5;  CODE_CONTEXT_TYPE_REFERENCE_CLASS = 6;  CODE_CONTEXT_TYPE_FILE = 7;  CODE_CONTEXT_TYPE_TERMINAL = 8;}
-enum Language {  LANGUAGE_UNSPECIFIED = 0;  LANGUAGE_C = 1;  LANGUAGE_CLOJURE = 2;  LANGUAGE_COFFEESCRIPT = 3;  LANGUAGE_CPP = 4;  LANGUAGE_CSHARP = 5;  LANGUAGE_CSS = 6;  LANGUAGE_CUDACPP = 7;  LANGUAGE_DOCKERFILE = 8;  LANGUAGE_GO = 9;  LANGUAGE_GROOVY = 10;  LANGUAGE_HANDLEBARS = 11;  LANGUAGE_HASKELL = 12;  LANGUAGE_HCL = 13;  LANGUAGE_HTML = 14;  LANGUAGE_INI = 15;  LANGUAGE_JAVA = 16;  LANGUAGE_JAVASCRIPT = 17;  LANGUAGE_JSON = 18;  LANGUAGE_JULIA = 19;  LANGUAGE_KOTLIN = 20;  LANGUAGE_LATEX = 21;  LANGUAGE_LESS = 22;  LANGUAGE_LUA = 23;  LANGUAGE_MAKEFILE = 24;  LANGUAGE_MARKDOWN = 25;  LANGUAGE_OBJECTIVEC = 26;  LANGUAGE_OBJECTIVECPP = 27;  LANGUAGE_PERL = 28;  LANGUAGE_PHP = 29;  LANGUAGE_PLAINTEXT = 30;  LANGUAGE_PROTOBUF = 31;  LANGUAGE_PBTXT = 32;  LANGUAGE_PYTHON = 33;  LANGUAGE_R = 34;  LANGUAGE_RUBY = 35;  LANGUAGE_RUST = 36;  LANGUAGE_SASS = 37;  LANGUAGE_SCALA = 38;  LANGUAGE_SCSS = 39;  LANGUAGE_SHELL = 40;  LANGUAGE_SQL = 41;  LANGUAGE_STARLARK = 42;  LANGUAGE_SWIFT = 43;  LANGUAGE_TSX = 44;  LANGUAGE_TYPESCRIPT = 45;  LANGUAGE_VISUALBASIC = 46;  LANGUAGE_VUE = 47;  LANGUAGE_XML = 48;  LANGUAGE_XSL = 49;  LANGUAGE_YAML = 50;  LANGUAGE_SVELTE = 51;  LANGUAGE_TOML = 52;  LANGUAGE_DART = 53;  LANGUAGE_RST = 54;  LANGUAGE_OCAML = 55;  LANGUAGE_CMAKE = 56;  LANGUAGE_PASCAL = 57;  LANGUAGE_ELIXIR = 58;  LANGUAGE_FSHARP = 59;  LANGUAGE_LISP = 60;  LANGUAGE_MATLAB = 61;  LANGUAGE_POWERSHELL = 62;  LANGUAGE_SOLIDITY = 63;  LANGUAGE_ADA = 64;  LANGUAGE_OCAML_INTERFACE = 65;  LANGUAGE_TREE_SITTER_QUERY = 66;  LANGUAGE_APL = 67;  LANGUAGE_ASSEMBLY = 68;  LANGUAGE_COBOL = 69;  LANGUAGE_CRYSTAL = 70;  LANGUAGE_EMACS_LISP = 71;  LANGUAGE_ERLANG = 72;  LANGUAGE_FORTRAN = 73;  LANGUAGE_FREEFORM = 74;  LANGUAGE_GRADLE = 75;  LANGUAGE_HACK = 76;  LANGUAGE_MAVEN = 77;  LANGUAGE_M68KASSEMBLY = 78;  LANGUAGE_SAS = 79;  LANGUAGE_UNIXASSEMBLY = 80;  LANGUAGE_VBA = 81;  LANGUAGE_VIMSCRIPT = 82;  LANGUAGE_WEBASSEMBLY = 83;  LANGUAGE_BLADE = 84;  LANGUAGE_ASTRO = 85;  LANGUAGE_MUMPS = 86;  LANGUAGE_GDSCRIPT = 87;  LANGUAGE_NIM = 88;  LANGUAGE_PROLOG = 89;  LANGUAGE_MARKDOWN_INLINE = 90;  LANGUAGE_APEX = 91;}
+enum Model {  MODEL_UNSPECIFIED = 0;  MODEL_EMBED_6591 = 20;  MODEL_8341 = 33;  MODEL_8528 = 42;  MODEL_9024 = 41;  MODEL_14602 = 112;  MODEL_15133 = 115;  MODEL_15302 = 119;  MODEL_15335 = 121;  MODEL_15336 = 122;  MODEL_15931 = 167;  MODEL_QUERY_9905 = 48;  MODEL_QUERY_11791 = 66;  MODEL_CHAT_11120 = 57;  MODEL_CHAT_11121 = 58;  MODEL_CHAT_12119 = 70;  MODEL_CHAT_12121 = 69;  MODEL_CHAT_12437 = 74;  MODEL_CHAT_12491 = 76;  MODEL_CHAT_12623 = 78;  MODEL_CHAT_12950 = 79;  MODEL_CHAT_12968 = 101;  MODEL_CHAT_13404 = 102;  MODEL_CHAT_13566 = 103;  MODEL_CHAT_13930 = 108;  MODEL_CHAT_14255 = 110;  MODEL_CHAT_14256 = 111;  MODEL_CHAT_14942 = 114;  MODEL_CHAT_15305 = 120;  MODEL_CHAT_15600 = 123;  MODEL_CHAT_16801 = 124;  MODEL_CHAT_16718 = 175;  MODEL_CHAT_15729 = 168;  MODEL_CHAT_16579 = 173;  MODEL_CHAT_16579_CRUSOE = 174;  MODEL_CHAT_18805 = 181;  MODEL_CHAT_18468 = 210;  MODEL_CHAT_19484 = 233;  MODEL_CHAT_20706 = 235;  MODEL_CHAT_21779 = 245;  MODEL_CHAT_19040 = 211;  MODEL_CHAT_19820 = 229;  MODEL_CHAT_19821 = 230;  MODEL_CHAT_19821_CRUSOE = 244;  MODEL_CHAT_23310 = 269;  MODEL_CHAT_28580 = 330;  MODEL_CHAT_28581 = 331;  MODEL_CHAT_28582 = 332;  MODEL_CHAT_28583 = 333;  MODEL_CHAT_28584 = 334;  MODEL_CHAT_19822 = 231;  MODEL_CHAT_22798 = 255;  MODEL_CHAT_22799 = 256;  MODEL_CHAT_22800 = 257;  MODEL_CHAT_23151 = 267;  MODEL_CHAT_23152 = 268;  MODEL_TAB_ARMADILLO = 500;  MODEL_TAB_BASE_1 = 501;  MODEL_TAB_EXPERIMENTAL_1 = 502;  MODEL_TAB_EXPERIMENTAL_2 = 503;  MODEL_TAB_EXPERIMENTAL_3 = 504;  MODEL_TAB_EXPERIMENTAL_4 = 505;  MODEL_TAB_EXPERIMENTAL_5 = 506;  MODEL_TAB_EXPERIMENTAL_6 = 507;  MODEL_TAB_EXPERIMENTAL_7 = 508;  MODEL_TAB_EXPERIMENTAL_8 = 509;  MODEL_TAB_EXPERIMENTAL_9 = 510;  MODEL_TAB_EXPERIMENTAL_10 = 511;  MODEL_CASCADE_22893 = 270;  MODEL_CASCADE_20064 = 225;  MODEL_CASCADE_20065 = 236;  MODEL_CASCADE_20066 = 237;  MODEL_CASCADE_20067 = 238;  MODEL_CASCADE_20068 = 239;  MODEL_CASCADE_20069 = 240;  MODEL_CASCADE_20070 = 250;  MODEL_CASCADE_20071 = 251;  MODEL_CASCADE_20072 = 252;  MODEL_CASCADE_20073 = 253;  MODEL_CASCADE_20074 = 254;  MODEL_CASCADE_20075 = 307;  MODEL_CASCADE_20076 = 308;  MODEL_CASCADE_20077 = 309;  MODEL_CASCADE_20078 = 310;  MODEL_CASCADE_20079 = 311;  MODEL_CASCADE_20080 = 297;  MODEL_CASCADE_20081 = 298;  MODEL_CASCADE_20082 = 299;  MODEL_CASCADE_20083 = 300;  MODEL_CASCADE_20084 = 301;  MODEL_CASCADE_20085 = 302;  MODEL_CASCADE_20086 = 303;  MODEL_CASCADE_20087 = 304;  MODEL_CASCADE_20088 = 305;  MODEL_CASCADE_20089 = 306;  MODEL_DEEPSEEK_V3_INTERNAL = 247;  MODEL_DEEPSEEK_V3_0324_INTERNAL = 248;  MODEL_DEEPSEEK_R1_INTERNAL = 249;  MODEL_ANTHROPIC_WINDSURF_RESEARCH = 241;  MODEL_ANTHROPIC_WINDSURF_RESEARCH_THINKING = 242;  MODEL_DRAFT_11408 = 65;  MODEL_DRAFT_CHAT_11883 = 67;  MODEL_DRAFT_CHAT_12196 = 72;  MODEL_DRAFT_CHAT_12413 = 73;  MODEL_DRAFT_CHAT_13175 = 104;  MODEL_DRAFT_CHAT_19823 = 232;  MODEL_DRAFT_CHAT_20707 = 243;  MODEL_DRAFT_CHAT_22801 = 258;  MODEL_DRAFT_CHAT_23508 = 273;  MODEL_DRAFT_CASCADE_23672 = 274;  MODEL_CHAT_3_5_TURBO = 28;  MODEL_CHAT_GPT_4 = 30;  MODEL_CHAT_GPT_4_1106_PREVIEW = 37;  MODEL_TEXT_EMBEDDING_OPENAI_ADA = 91;  MODEL_TEXT_EMBEDDING_OPENAI_3_SMALL = 163;  MODEL_TEXT_EMBEDDING_OPENAI_3_LARGE = 164;  MODEL_CHAT_GPT_4O_2024_05_13 = 71;  MODEL_CHAT_GPT_4O_2024_08_06 = 109;  MODEL_CHAT_GPT_4O_MINI_2024_07_18 = 113;  MODEL_CHAT_GPT_4_1_2025_04_14 = 259;  MODEL_CHAT_GPT_4_1_MINI_2025_04_14 = 260;  MODEL_CHAT_GPT_4_1_NANO_2025_04_14 = 261;  MODEL_CHAT_O1_PREVIEW = 117;  MODEL_CHAT_O1_MINI = 118;  MODEL_CHAT_O1 = 170;  MODEL_CHAT_O3_MINI = 207;  MODEL_CHAT_O3_MINI_LOW = 213;  MODEL_CHAT_O3_MINI_HIGH = 214;  MODEL_CHAT_O3 = 218;  MODEL_CHAT_O3_LOW = 262;  MODEL_CHAT_O3_HIGH = 263;  MODEL_CHAT_O4_MINI = 264;  MODEL_CHAT_O4_MINI_LOW = 265;  MODEL_CHAT_O4_MINI_HIGH = 266;  MODEL_CHAT_GPT_4_5 = 228;  MODEL_CODEX_MINI_LATEST = 287;  MODEL_CODEX_MINI_LATEST_LOW = 288;  MODEL_CODEX_MINI_LATEST_HIGH = 289;  MODEL_O3_PRO_2025_06_10 = 294;  MODEL_O3_PRO_2025_06_10_LOW = 295;  MODEL_O3_PRO_2025_06_10_HIGH = 296;  MODEL_GPT_OSS_120B = 326;  MODEL_GPT_5_NANO = 337;  MODEL_CHAT_GPT_5_MINIMAL = 338;  MODEL_CHAT_GPT_5_LOW = 339;  MODEL_CHAT_GPT_5 = 340;  MODEL_CHAT_GPT_5_HIGH = 341;  MODEL_CHAT_GPT_5_CODEX = 346;  MODEL_GPT_5_1_CODEX_MINI_LOW = 385;  MODEL_GPT_5_1_CODEX_MINI_MEDIUM = 386;  MODEL_GPT_5_1_CODEX_MINI_HIGH = 387;  MODEL_GPT_5_1_CODEX_LOW = 388;  MODEL_GPT_5_1_CODEX_MEDIUM = 389;  MODEL_GPT_5_1_CODEX_HIGH = 390;  MODEL_GPT_5_1_CODEX_MAX_LOW = 395;  MODEL_GPT_5_1_CODEX_MAX_MEDIUM = 396;  MODEL_GPT_5_1_CODEX_MAX_HIGH = 397;  MODEL_GOOGLE_GEMINI_1_0_PRO = 61;  MODEL_GOOGLE_GEMINI_1_5_PRO = 62;  MODEL_GOOGLE_GEMINI_EXP_1206 = 183;  MODEL_GOOGLE_GEMINI_2_0_FLASH = 184;  MODEL_GOOGLE_GEMINI_2_5_PRO = 246;  MODEL_GOOGLE_GEMINI_2_5_FLASH_PREVIEW_04_17 = 272;  MODEL_GOOGLE_GEMINI_2_5_FLASH_PREVIEW_05_20 = 275;  MODEL_GOOGLE_GEMINI_2_5_FLASH_PREVIEW_05_20_THINKING = 276;  MODEL_GOOGLE_GEMINI_2_5_FLASH = 312;  MODEL_GOOGLE_GEMINI_2_5_FLASH_THINKING = 313;  MODEL_GOOGLE_GEMINI_2_5_FLASH_LITE = 343;  MODEL_GOOGLE_GEMINI_3_0_PRO_LOW = 378;  MODEL_GOOGLE_GEMINI_3_0_PRO_HIGH = 379;  MODEL_GOOGLE_GEMINI_3_0_PRO_MINIMAL = 411;  MODEL_GOOGLE_GEMINI_3_0_PRO_MEDIUM = 412;  MODEL_GOOGLE_GEMINI_3_0_FLASH_MINIMAL = 413;  MODEL_GOOGLE_GEMINI_3_0_FLASH_LOW = 414;  MODEL_GOOGLE_GEMINI_3_0_FLASH_MEDIUM = 415;  MODEL_GOOGLE_GEMINI_3_0_FLASH_HIGH = 416;  MODEL_CLAUDE_3_OPUS_20240229 = 63;  MODEL_CLAUDE_3_SONNET_20240229 = 64;  MODEL_CLAUDE_3_HAIKU_20240307 = 172;  MODEL_CLAUDE_3_5_HAIKU_20241022 = 171;  MODEL_CLAUDE_3_5_SONNET_20240620 = 80;  MODEL_CLAUDE_3_5_SONNET_20241022 = 166;  MODEL_CLAUDE_3_7_SONNET_20250219 = 226;  MODEL_CLAUDE_3_7_SONNET_20250219_THINKING = 227;  MODEL_CLAUDE_3_5_SONNET_BYOK = 284;  MODEL_CLAUDE_3_7_SONNET_BYOK = 285;  MODEL_CLAUDE_3_7_SONNET_OPEN_ROUTER_BYOK = 319;  MODEL_CLAUDE_3_7_SONNET_THINKING_BYOK = 286;  MODEL_CLAUDE_3_7_SONNET_THINKING_OPEN_ROUTER_BYOK = 320;  MODEL_CLAUDE_4_OPUS_BYOK = 277;  MODEL_CLAUDE_4_OPUS_THINKING_BYOK = 278;  MODEL_CLAUDE_4_OPUS = 290;  MODEL_CLAUDE_4_OPUS_THINKING = 291;  MODEL_CLAUDE_4_SONNET_BYOK = 279;  MODEL_CLAUDE_4_SONNET_OPEN_ROUTER_BYOK = 321;  MODEL_CLAUDE_4_SONNET_THINKING_BYOK = 280;  MODEL_CLAUDE_4_SONNET_THINKING_OPEN_ROUTER_BYOK = 322;  MODEL_CLAUDE_4_SONNET = 281;  MODEL_CLAUDE_4_SONNET_THINKING = 282;  MODEL_CLAUDE_4_1_OPUS = 328;  MODEL_CLAUDE_4_1_OPUS_THINKING = 329;  MODEL_CLAUDE_4_5_SONNET = 353;  MODEL_CLAUDE_4_5_SONNET_THINKING = 354;  MODEL_CLAUDE_4_5_SONNET_1M = 370;  MODEL_CLAUDE_4_5_SONNET_THINKING_1M = 371;  MODEL_CLAUDE_4_5_OPUS = 391;  MODEL_CLAUDE_4_5_OPUS_THINKING = 392;  MODEL_CLAUDE_4_SONNET_DATABRICKS = 292;  MODEL_CLAUDE_4_SONNET_THINKING_DATABRICKS = 293;  MODEL_TOGETHERAI_TEXT_EMBEDDING_M2_BERT = 81;  MODEL_TOGETHERAI_LLAMA_3_1_8B_INSTRUCT = 165;  MODEL_HUGGING_FACE_TEXT_EMBEDDING_M2_BERT = 82;  MODEL_HUGGING_FACE_TEXT_EMBEDDING_UAE_CODE = 83;  MODEL_HUGGING_FACE_TEXT_EMBEDDING_BGE = 84;  MODEL_HUGGING_FACE_TEXT_EMBEDDING_BLADE = 85;  MODEL_HUGGING_FACE_TEXT_EMBEDDING_ARCTIC_LARGE = 86;  MODEL_HUGGING_FACE_TEXT_EMBEDDING_E5_BASE = 87;  MODEL_HUGGING_FACE_TEXT_EMBEDDING_MXBAI = 88;  MODEL_LLAMA_3_1_8B_INSTRUCT = 106;  MODEL_LLAMA_3_1_70B_INSTRUCT = 107;  MODEL_LLAMA_3_1_405B_INSTRUCT = 105;  MODEL_LLAMA_3_3_70B_INSTRUCT = 208;  MODEL_LLAMA_3_3_70B_INSTRUCT_R1 = 209;  MODEL_LLAMA_3_1_70B_INSTRUCT_LONG_CONTEXT = 116;  MODEL_LLAMA_3_1_8B_HERMES_3 = 176;  MODEL_LLAMA_3_1_70B_HERMES_3 = 177;  MODEL_QWEN_2_5_7B_INSTRUCT = 178;  MODEL_QWEN_2_5_32B_INSTRUCT = 179;  MODEL_QWEN_2_5_72B_INSTRUCT = 180;  MODEL_QWEN_2_5_32B_INSTRUCT_R1 = 224;  MODEL_QWEN_3_235B_INSTRUCT = 324;  MODEL_QWEN_3_CODER_480B_INSTRUCT = 325;  MODEL_QWEN_3_CODER_480B_INSTRUCT_FAST = 327;  MODEL_GLM_4_5 = 342;  MODEL_GLM_4_5_FAST = 352;  MODEL_GLM_4_6 = 356;  MODEL_GLM_4_6_FAST = 357;  MODEL_GLM_4_7 = 417;  MODEL_GLM_4_7_FAST = 418;  MODEL_SWE_1_5 = 359;  MODEL_SWE_1_5_REDIRECT = 361;  MODEL_SWE_1_5_THINKING = 369;  MODEL_SWE_1_5_SLOW = 377;  MODEL_SWE_1_6 = 420;  MODEL_SWE_1_6_FAST = 421;  MODEL_CODEMAP_SMALL = 358;  MODEL_CODEMAP_MEDIUM = 360;  MODEL_CODEMAP_SMART = 362;  MODEL_COGNITION_INSTANT_CONTEXT = 355;  MODEL_LLAMA_FT_DEEPWIKI_ARTICLE = 335;  MODEL_LLAMA_FT_DEEPWIKI_HOVER = 336;  MODEL_LLAMA_FT_LIFEGUARD = 398;  MODEL_COGNITION_LIFEGUARD = 410;  MODEL_NOMIC_TEXT_EMBEDDING_V1 = 89;  MODEL_NOMIC_TEXT_EMBEDDING_V1_5 = 90;  MODEL_MISTRAL_7B = 77;  MODEL_SALESFORCE_EMBEDDING_2R = 99;  MODEL_CUSTOM_VLLM = 182;  MODEL_TEI_BGE_M3 = 92;  MODEL_TEI_NOMIC_EMBED_TEXT_V1 = 93;  MODEL_TEI_INTFLOAT_E5_LARGE_INSTRUCT = 94;  MODEL_TEI_SNOWFLAKE_ARCTIC_EMBED_L = 95;  MODEL_TEI_UAE_CODE_LARGE_V1 = 96;  MODEL_TEI_B1ADE = 97;  MODEL_TEI_WHEREISAI_UAE_LARGE_V1 = 98;  MODEL_TEI_WHEREISAI_UAE_CODE_LARGE_V1 = 100;  MODEL_OPENAI_COMPATIBLE = 200;  MODEL_ANTHROPIC_COMPATIBLE = 201;  MODEL_VERTEX_COMPATIBLE = 202;  MODEL_BEDROCK_COMPATIBLE = 203;  MODEL_AZURE_COMPATIBLE = 204;  MODEL_DEEPSEEK_V3 = 205;  MODEL_DEEPSEEK_R1 = 206;  MODEL_DEEPSEEK_R1_SLOW = 215;  MODEL_DEEPSEEK_R1_FAST = 216;  MODEL_KIMI_K2 = 323;  MODEL_MINIMAX_M2 = 368;  MODEL_MINIMAX_M2_1 = 419;  MODEL_DEEPSEEK_V3_2 = 409;  MODEL_KIMI_K2_THINKING = 394;  MODEL_CUSTOM_OPEN_ROUTER = 185;  MODEL_XAI_GROK_2 = 212;  MODEL_XAI_GROK_3 = 217;  MODEL_XAI_GROK_3_MINI_REASONING = 234;  MODEL_XAI_GROK_CODE_FAST = 345;  MODEL_PRIVATE_1 = 219;  MODEL_PRIVATE_2 = 220;  MODEL_PRIVATE_3 = 221;  MODEL_PRIVATE_4 = 222;  MODEL_PRIVATE_5 = 223;  MODEL_PRIVATE_6 = 314;  MODEL_PRIVATE_7 = 315;  MODEL_PRIVATE_8 = 316;  MODEL_PRIVATE_9 = 317;  MODEL_PRIVATE_10 = 318;  MODEL_PRIVATE_11 = 347;  MODEL_PRIVATE_12 = 348;  MODEL_PRIVATE_13 = 349;  MODEL_PRIVATE_14 = 350;  MODEL_PRIVATE_15 = 351;  MODEL_PRIVATE_16 = 363;  MODEL_PRIVATE_17 = 364;  MODEL_PRIVATE_18 = 365;  MODEL_PRIVATE_19 = 366;  MODEL_PRIVATE_20 = 367;  MODEL_PRIVATE_21 = 372;  MODEL_PRIVATE_22 = 373;  MODEL_PRIVATE_23 = 374;  MODEL_PRIVATE_24 = 375;  MODEL_PRIVATE_25 = 376;  MODEL_PRIVATE_26 = 380;  MODEL_PRIVATE_27 = 381;  MODEL_PRIVATE_28 = 382;  MODEL_PRIVATE_29 = 383;  MODEL_PRIVATE_30 = 384;  MODEL_GPT_5_2_NONE = 399;  MODEL_GPT_5_2_LOW = 400;  MODEL_GPT_5_2_MEDIUM = 401;  MODEL_GPT_5_2_HIGH = 402;  MODEL_GPT_5_2_XHIGH = 403;  MODEL_GPT_5_2_NONE_PRIORITY = 404;  MODEL_GPT_5_2_LOW_PRIORITY = 405;  MODEL_GPT_5_2_MEDIUM_PRIORITY = 406;  MODEL_GPT_5_2_HIGH_PRIORITY = 407;  MODEL_GPT_5_2_XHIGH_PRIORITY = 408;  MODEL_GPT_5_2_CODEX_LOW = 422;  MODEL_GPT_5_2_CODEX_MEDIUM = 423;  MODEL_GPT_5_2_CODEX_HIGH = 424;  MODEL_GPT_5_2_CODEX_XHIGH = 425;  MODEL_GPT_5_2_CODEX_LOW_PRIORITY = 426;  MODEL_GPT_5_2_CODEX_MEDIUM_PRIORITY = 427;  MODEL_GPT_5_2_CODEX_HIGH_PRIORITY = 428;  MODEL_GPT_5_2_CODEX_XHIGH_PRIORITY = 429;  MODEL_SGLANG_ROLLOUT = 600;}
+enum ExperimentKey {  UNSPECIFIED = 0;  USE_INTERNAL_CHAT_MODEL = 36;  RECORD_FILES = 47;  NO_SAMPLER_EARLY_STOP = 48;  CM_MEMORY_TELEMETRY = 53;  LANGUAGE_SERVER_VERSION = 55;  LANGUAGE_SERVER_AUTO_RELOAD = 56;  ONLY_MULTILINE = 60;  USE_AUTOCOMPLETE_MODEL = 64;  USE_ATTRIBUTION_FOR_INDIVIDUAL_TIER = 68;  CHAT_MODEL_CONFIG = 78;  COMMAND_MODEL_CONFIG = 79;  MIN_IDE_VERSION = 81;  API_SERVER_VERBOSE_ERRORS = 84;  DEFAULT_ENABLE_SEARCH = 86;  COLLECT_ONBOARDING_EVENTS = 87;  COLLECT_EXAMPLE_COMPLETIONS = 88;  USE_MULTILINE_MODEL = 89;  ATTRIBUTION_KILL_SWITCH = 92;  FAST_MULTILINE = 94;  SINGLE_COMPLETION = 95;  STOP_FIRST_NON_WHITESPACE_LINE = 96;  CORTEX_CONFIG = 102;  MODEL_CHAT_11121_VARIANTS = 103;  INCLUDE_PROMPT_COMPONENTS = 105;  NON_TEAMS_KILL_SWITCH = 106;  PERSIST_CODE_TRACKER = 108;  CHAT_COMPLETION_TOKENS_SOFT_LIMIT = 114;  CHAT_TOKENS_SOFT_LIMIT = 115;  DISABLE_COMPLETIONS_CACHE = 118;  LLAMA3_405B_KILL_SWITCH = 119;  USE_COMMAND_DOCSTRING_GENERATION = 121;  ENABLE_SUPERCOMPLETE = 123;  SENTRY = 136;  FAST_SINGLELINE = 144;  R2_LANGUAGE_SERVER_DOWNLOAD = 147;  SPLIT_MODEL = 152;  WINDSURF_SENTRY_SAMPLE_RATE = 198;  API_SERVER_CUTOFF = 158;  FAST_SPEED_KILL_SWITCH = 159;  PREDICTIVE_MULTILINE = 160;  SUPERCOMPLETE_FILTER_REVERT = 125;  SUPERCOMPLETE_FILTER_PREFIX_MATCH = 126;  SUPERCOMPLETE_FILTER_SCORE_THRESHOLD = 127;  SUPERCOMPLETE_FILTER_INSERTION_CAP = 128;  SUPERCOMPLETE_FILTER_DELETION_CAP = 133;  SUPERCOMPLETE_FILTER_WHITESPACE_ONLY = 156;  SUPERCOMPLETE_FILTER_NO_OP = 170;  SUPERCOMPLETE_FILTER_SUFFIX_MATCH = 176;  SUPERCOMPLETE_FILTER_PREVIOUSLY_SHOWN = 182;  SUPERCOMPLETE_MIN_SCORE = 129;  SUPERCOMPLETE_MAX_INSERTIONS = 130;  SUPERCOMPLETE_LINE_RADIUS = 131;  SUPERCOMPLETE_MAX_DELETIONS = 132;  SUPERCOMPLETE_RECENT_STEPS_DURATION = 138;  SUPERCOMPLETE_MAX_TRAJECTORY_STEPS = 154;  SUPERCOMPLETE_MAX_TRAJECTORY_STEP_SIZE = 203;  SUPERCOMPLETE_DISABLE_TYPING_CACHE = 231;  SUPERCOMPLETE_ALWAYS_USE_CACHE_ON_EQUAL_STATE = 293;  SUPERCOMPLETE_CACHE_ON_PARENT_ID_KILL_SWITCH = 297;  SUPERCOMPLETE_PRUNE_RESPONSE = 140;  SUPERCOMPLETE_PRUNE_MAX_INSERT_DELETE_LINE_DELTA = 141;  SUPERCOMPLETE_MODEL_CONFIG = 145;  SUPERCOMPLETE_ON_TAB = 151;  SUPERCOMPLETE_INLINE_PURE_DELETE = 171;  SUPERCOMPLETE_INLINE_RICH_GHOST_TEXT_INSERTIONS = 218;  MODEL_CHAT_19821_VARIANTS = 308;  SUPERCOMPLETE_MAX_CONCURRENT_REQUESTS = 284;  COMMAND_PROMPT_CACHE_CONFIG = 255;  CUMULATIVE_PROMPT_CONFIG = 256;  CUMULATIVE_PROMPT_CASCADE_CONFIG = 279;  TAB_JUMP_CUMULATIVE_PROMPT_CONFIG = 301;  COMPLETION_SPEED_SUPERCOMPLETE_CACHE = 207;  COMPLETION_SPEED_PREDICTIVE_SUPERCOMPLETE = 208;  COMPLETION_SPEED_TAB_JUMP_CACHE = 209;  COMPLETION_SPEED_PREDICTIVE_TAB_JUMP = 210;  COMPLETION_SPEED_BLOCK_TAB_JUMP_ON_PREDICTIVE_SUPERCOMPLETE = 294;  JETBRAINS_ENABLE_ONBOARDING = 137;  ENABLE_AUTOCOMPLETE_DURING_INTELLISENSE = 146;  COMMAND_BOX_ON_TOP = 155;  CONTEXT_ACTIVE_DOCUMENT_FRACTION = 149;  CONTEXT_FORCE_LOCAL_CONTEXT = 178;  CROSS_SELL_EXTENSION_DOWNLOAD_WINDSURF = 220;  MODEL_LLAMA_3_1_70B_INSTRUCT_LONG_CONTEXT_VARIANTS = 295;  USE_AUTOCOMPLETE_MODEL_SERVER_SIDE = 163;  SUPERCOMPLETE_NO_CONTEXT = 165;  SUPERCOMPLETE_NO_ACTIVE_NODE = 166;  TAB_JUMP_ENABLED = 168;  TAB_JUMP_ACCEPT_ENABLED = 169;  TAB_JUMP_LINE_RADIUS = 177;  TAB_JUMP_MIN_FILTER_RADIUS = 197;  TAB_JUMP_ON_ACCEPT_ONLY = 205;  TAB_JUMP_FILTER_IN_SELECTION = 215;  TAB_JUMP_MODEL_CONFIG = 237;  TAB_JUMP_FILTER_NO_OP = 238;  TAB_JUMP_FILTER_REVERT = 239;  TAB_JUMP_FILTER_SCORE_THRESHOLD = 240;  TAB_JUMP_FILTER_WHITESPACE_ONLY = 241;  TAB_JUMP_FILTER_INSERTION_CAP = 242;  TAB_JUMP_FILTER_DELETION_CAP = 243;  TAB_JUMP_PRUNE_RESPONSE = 260;  TAB_JUMP_PRUNE_MAX_INSERT_DELETE_LINE_DELTA = 261;  TAB_JUMP_STOP_TOKEN_MIDSTREAM = 317;  VIEWED_FILE_TRACKER_CONFIG = 211;  SNAPSHOT_TO_STEP_OPTIONS_OVERRIDE = 305;  STREAMING_EXTERNAL_COMMAND = 172;  USE_SPECIAL_EDIT_CODE_BLOCK = 179;  ENABLE_SUGGESTED_RESPONSES = 187;  CASCADE_BASE_MODEL_ID = 190;  CASCADE_PLAN_BASED_CONFIG_OVERRIDE = 266;  CASCADE_GLOBAL_CONFIG_OVERRIDE = 212;  CASCADE_BACKGROUND_RESEARCH_CONFIG_OVERRIDE = 193;  CASCADE_ENFORCE_QUOTA = 204;  CASCADE_ENABLE_AUTOMATED_MEMORIES = 224;  CASCADE_MEMORY_CONFIG_OVERRIDE = 314;  CASCADE_USE_REPLACE_CONTENT_EDIT_TOOL = 228;  CASCADE_VIEW_FILE_TOOL_CONFIG_OVERRIDE = 258;  CASCADE_USE_EXPERIMENT_CHECKPOINTER = 247;  CASCADE_ENABLE_CUSTOM_RECIPES = 236;  CASCADE_ENABLE_MCP_TOOLS = 245;  CASCADE_AUTO_FIX_LINTS = 275;  USE_ANTHROPIC_TOKEN_EFFICIENT_TOOLS_BETA = 296;  CASCADE_USER_MEMORIES_IN_SYS_PROMPT = 289;  CASCADE_ENABLE_PROXY_WEB_SERVER = 290;  COLLAPSE_ASSISTANT_MESSAGES = 312;  CASCADE_DEFAULT_MODEL_OVERRIDE = 321;  ENABLE_SMART_COPY = 181;  ENABLE_COMMIT_MESSAGE_GENERATION = 185;  SKIP_CONSISTENCY_MANAGER = 194;  FIREWORKS_ON_DEMAND_DEPLOYMENT = 276;  API_SERVER_CLIENT_USE_HTTP_2 = 202;  AUTOCOMPLETE_DEFAULT_DEBOUNCE_MS = 213;  AUTOCOMPLETE_FAST_DEBOUNCE_MS = 214;  PROFILING_TELEMETRY_SAMPLE_RATE = 219;  STREAM_USER_SHELL_COMMANDS = 225;  API_SERVER_PROMPT_CACHE_REPLICAS = 307;  API_SERVER_ENABLE_MORE_LOGGING = 272;  COMMAND_INJECT_USER_MEMORIES = 233;  AUTOCOMPLETE_HIDDEN_ERROR_REGEX = 234;  DISABLE_IDE_COMPLETIONS_DEBOUNCE = 278;  ENABLE_QUICK_ACTIONS = 250;  QUICK_ACTIONS_WHITELIST_REGEX = 251;  CASCADE_NEW_MODELS_NUX = 259;  CASCADE_NEW_WAVE_2_MODELS_NUX = 270;  SUPERCOMPLETE_FAST_DEBOUNCE = 262;  SUPERCOMPLETE_REGULAR_DEBOUNCE = 263;  XML_TOOL_PARSING_MODELS = 268;  SUPERCOMPLETE_DONT_FILTER_MID_STREAMED = 269;  ANNOYANCE_MANAGER_MAX_NAVIGATION_RENDERS = 285;  ANNOYANCE_MANAGER_INLINE_PREVENTION_THRESHOLD_MS = 286;  ANNOYANCE_MANAGER_INLINE_PREVENTION_MAX_INTENTIONAL_REJECTIONS = 287;  ANNOYANCE_MANAGER_INLINE_PREVENTION_MAX_AUTO_REJECTIONS = 288;  USE_CUSTOM_CHARACTER_DIFF = 292;  FORCE_NON_OPTIMIZED_DIFF = 298;  CASCADE_WEB_APP_DEPLOYMENTS_ENABLED = 300;  CASCADE_RECIPES_AT_MENTION_VISIBILITY = 316;  IMPLICIT_USES_CLIPBOARD = 310;  DISABLE_SUPERCOMPLETE_PCW = 303;  BLOCK_TAB_ON_SHOWN_AUTOCOMPLETE = 304;  CASCADE_WEB_SEARCH_NUX = 311;  MODEL_NOTIFICATIONS = 319;  MODEL_SELECTOR_NUX_COPY = 320;  CASCADE_TOOL_CALL_PRICING_NUX = 322;  CASCADE_PLUGINS_TAB = 323;  WAVE_8_RULES_ENABLED = 324;  WAVE_8_KNOWLEDGE_ENABLED = 325;  CASCADE_ONBOARDING = 326;  CASCADE_ONBOARDING_REVERT = 327;  CASCADE_WINDSURF_BROWSER_TOOLS_ENABLED = 328;  CASCADE_MODEL_HEADER_WARNING = 329;  TEST_ONLY = 999;}
+enum ExperimentSource {  EXPERIMENT_SOURCE_UNSPECIFIED = 0;  EXPERIMENT_SOURCE_EXTENSION = 1;  EXPERIMENT_SOURCE_LANGUAGE_SERVER = 2;  EXPERIMENT_SOURCE_API_SERVER = 3;}
+enum CompletionSource {  COMPLETION_SOURCE_UNSPECIFIED = 0;  COMPLETION_SOURCE_TYPING_AS_SUGGESTED = 1;  COMPLETION_SOURCE_CACHE = 2;  COMPLETION_SOURCE_NETWORK = 3;}
+enum PromptElementKind {  PROMPT_ELEMENT_KIND_UNSPECIFIED = 0;  PROMPT_ELEMENT_KIND_FILE_MARKER = 2;  PROMPT_ELEMENT_KIND_OTHER_DOCUMENT = 4;  PROMPT_ELEMENT_KIND_BEFORE_CURSOR = 5;  PROMPT_ELEMENT_KIND_AFTER_CURSOR = 7;  PROMPT_ELEMENT_KIND_FIM = 8;  PROMPT_ELEMENT_KIND_SOT = 9;  PROMPT_ELEMENT_KIND_EOT = 10;  PROMPT_ELEMENT_KIND_CODE_CONTEXT_ITEM = 13;  PROMPT_ELEMENT_KIND_INSTRUCTION = 14;  PROMPT_ELEMENT_KIND_SELECTION = 15;  PROMPT_ELEMENT_KIND_TRAJECTORY_STEP = 16;  PROMPT_ELEMENT_KIND_ACTIVE_DOCUMENT = 17;  PROMPT_ELEMENT_KIND_CACHED_MESSAGE = 18;}
+enum PromptAnnotationKind {  PROMPT_ANNOTATION_KIND_UNSPECIFIED = 0;  PROMPT_ANNOTATION_KIND_COPY = 1;  PROMPT_ANNOTATION_KIND_PROMPT_CACHE = 2;}
+enum CompletionType {  COMPLETION_TYPE_UNSPECIFIED = 0;  COMPLETION_TYPE_SINGLE = 1;  COMPLETION_TYPE_MULTI = 2;  COMPLETION_TYPE_INLINE_FIM = 3;  COMPLETION_TYPE_CASCADE = 4;}
+enum CodeSource {  CODE_SOURCE_UNSPECIFIED = 0;  CODE_SOURCE_BASE = 1;  CODE_SOURCE_CODEIUM = 2;  CODE_SOURCE_USER = 3;  CODE_SOURCE_USER_LARGE = 4;  CODE_SOURCE_UNKNOWN = 5;}
+enum ProviderSource {  PROVIDER_SOURCE_UNSPECIFIED = 0;  PROVIDER_SOURCE_AUTOCOMPLETE = 1;  PROVIDER_SOURCE_CHAT = 2;  PROVIDER_SOURCE_COMMAND_GENERATE = 4;  PROVIDER_SOURCE_COMMAND_EDIT = 5;  PROVIDER_SOURCE_SUPERCOMPLETE = 6;  PROVIDER_SOURCE_COMMAND_PLAN = 7;  PROVIDER_SOURCE_QUERY = 8;  PROVIDER_SOURCE_FAST_APPLY = 9;  PROVIDER_SOURCE_COMMAND_TERMINAL = 10;  PROVIDER_SOURCE_TAB_JUMP = 11;  PROVIDER_SOURCE_CASCADE = 12;}
+enum StatusLevel {  STATUS_LEVEL_UNSPECIFIED = 0;  STATUS_LEVEL_ERROR = 1;  STATUS_LEVEL_WARNING = 2;  STATUS_LEVEL_INFO = 3;  STATUS_LEVEL_DEBUG = 4;}
+enum ModelAlias {  MODEL_ALIAS_UNSPECIFIED = 0;  MODEL_ALIAS_CASCADE_BASE = 1;  MODEL_ALIAS_VISTA = 3;  MODEL_ALIAS_SHAMU = 4;  MODEL_ALIAS_SWE_1 = 5;  MODEL_ALIAS_SWE_1_LITE = 6;  MODEL_ALIAS_AUTO = 7;}
+enum ModelPricingType {  MODEL_PRICING_TYPE_UNSPECIFIED = 0;  MODEL_PRICING_TYPE_STATIC_CREDIT = 1;  MODEL_PRICING_TYPE_API = 2;  MODEL_PRICING_TYPE_BYOK = 3;  MODEL_PRICING_TYPE_DEVIN_ENTERPRISE = 4;}
+enum ModelProvider {  MODEL_PROVIDER_UNSPECIFIED = 0;  MODEL_PROVIDER_WINDSURF = 1;  MODEL_PROVIDER_OPENAI = 2;  MODEL_PROVIDER_ANTHROPIC = 3;  MODEL_PROVIDER_GOOGLE = 4;  MODEL_PROVIDER_XAI = 5;  MODEL_PROVIDER_DEEPSEEK = 6;  MODEL_PROVIDER_MOONSHOT = 7;  MODEL_PROVIDER_QWEN = 8;}
+enum TeamsTier {  TEAMS_TIER_UNSPECIFIED = 0;  TEAMS_TIER_TEAMS = 1;  TEAMS_TIER_PRO = 2;  TEAMS_TIER_TRIAL = 9;  TEAMS_TIER_ENTERPRISE_SAAS = 3;  TEAMS_TIER_HYBRID = 4;  TEAMS_TIER_ENTERPRISE_SELF_HOSTED = 5;  TEAMS_TIER_ENTERPRISE_SELF_SERVE = 10;  TEAMS_TIER_DEVIN_ENTERPRISE = 12;  TEAMS_TIER_WAITLIST_PRO = 6;  TEAMS_TIER_TEAMS_ULTIMATE = 7;  TEAMS_TIER_PRO_ULTIMATE = 8;  TEAMS_TIER_ENTERPRISE_SAAS_POOLED = 11;}
+enum APIProvider {  API_PROVIDER_UNSPECIFIED = 0;  API_PROVIDER_INTERNAL = 1;  API_PROVIDER_OPENAI = 2;  API_PROVIDER_GOOGLE_VERTEX = 3;  API_PROVIDER_ANTHROPIC = 4;  API_PROVIDER_VLLM = 5;  API_PROVIDER_TOGETHER_AI = 6;  API_PROVIDER_HUGGING_FACE = 7;  API_PROVIDER_NOMIC = 8;  API_PROVIDER_TEI = 9;  API_PROVIDER_OPENAI_COMPATIBLE_EXTERNAL = 10;  API_PROVIDER_ANTHROPIC_COMPATIBLE_EXTERNAL = 11;  API_PROVIDER_VERTEX_COMPATIBLE_EXTERNAL = 12;  API_PROVIDER_BEDROCK_COMPATIBLE_EXTERNAL = 13;  API_PROVIDER_AZURE_COMPATIBLE_EXTERNAL = 14;  API_PROVIDER_ANTHROPIC_BEDROCK = 15;  API_PROVIDER_FIREWORKS = 16;  API_PROVIDER_OPEN_ROUTER = 17;  API_PROVIDER_XAI = 18;  API_PROVIDER_ANTHROPIC_BYOK = 20;  API_PROVIDER_CEREBRAS = 21;  API_PROVIDER_XAI_BYOK = 22;  API_PROVIDER_GEMINI_OPENAI = 23;  API_PROVIDER_GOOGLE_GEMINI = 24;  API_PROVIDER_GOOGLE_GENAI_VERTEX = 25;  API_PROVIDER_ANTHROPIC_VERTEX = 26;  API_PROVIDER_DATABRICKS = 27;  API_PROVIDER_OPEN_ROUTER_BYOK = 28;  API_PROVIDER_ANTHROPIC_DEVIN = 29;  API_PROVIDER_FIREWORKS_DEVIN = 30;  API_PROVIDER_GROQ = 31;  API_PROVIDER_OPENAI_DEVIN = 32;  API_PROVIDER_LLAMA_FT_DEEPWIKI = 33;  API_PROVIDER_XAI_INTERNAL = 34;  API_PROVIDER_FLOODGATE = 36;  API_PROVIDER_ANTHROPIC_BEDROCK_US = 37;  API_PROVIDER_ANTHROPIC_BEDROCK_GLOBAL = 38;  API_PROVIDER_MODAL = 40;  API_PROVIDER_GOOGLE_GEMINI_DEVIN = 41;  API_PROVIDER_FIREWORKS_COGNITION = 42;  API_PROVIDER_GOOGLE_GENAI_VERTEX_GLOBAL = 43;  API_PROVIDER_ANTHROPIC_VERTEX_US = 44;  API_PROVIDER_ANTHROPIC_VERTEX_EU = 45;  API_PROVIDER_ANTHROPIC_VERTEX_GLOBAL = 46;  API_PROVIDER_FIREWORKS_COGNITION_INTERNAL = 47;  API_PROVIDER_SGLANG = 60;  API_PROVIDER_AZURE_OPENAI_FEDERATED = 61;}
+enum ModelType {  MODEL_TYPE_UNSPECIFIED = 0;  MODEL_TYPE_COMPLETION = 1;  MODEL_TYPE_CHAT = 2;  MODEL_TYPE_EMBED = 3;  MODEL_TYPE_QUERY = 4;}
+enum PromptTemplaterType {  PROMPT_TEMPLATER_TYPE_UNSPECIFIED = 0;  PROMPT_TEMPLATER_TYPE_LLAMA_2 = 1;  PROMPT_TEMPLATER_TYPE_LLAMA_3 = 2;  PROMPT_TEMPLATER_TYPE_CHATML = 3;  PROMPT_TEMPLATER_TYPE_CHAT_TRANSCRIPT = 4;  PROMPT_TEMPLATER_TYPE_DEEPSEEK_V2 = 5;  PROMPT_TEMPLATER_TYPE_DEEPSEEK_V3 = 6;  PROMPT_TEMPLATER_TYPE_KIMI = 7;}
+enum ToolFormatterType {  TOOL_FORMATTER_TYPE_UNSPECIFIED = 0;  TOOL_FORMATTER_TYPE_LLAMA_3 = 1;  TOOL_FORMATTER_TYPE_HERMES = 2;  TOOL_FORMATTER_TYPE_XML = 3;  TOOL_FORMATTER_TYPE_CHAT_TRANSCRIPT = 4;  TOOL_FORMATTER_TYPE_KIMI = 5;  TOOL_FORMATTER_TYPE_QWENCODER = 6;  TOOL_FORMATTER_TYPE_SUPERCOMPLETE = 7;}
+enum ArenaTier {  ARENA_TIER_UNSPECIFIED = 0;  ARENA_TIER_FAST = 1;  ARENA_TIER_SMART = 2;}
+enum ModelCostTier {  MODEL_COST_TIER_UNSPECIFIED = 0;  MODEL_COST_TIER_LOW = 1;  MODEL_COST_TIER_MEDIUM = 2;  MODEL_COST_TIER_HIGH = 3;}
+enum EventType {  EVENT_TYPE_UNSPECIFIED = 0;  EVENT_TYPE_ENABLE_CODEIUM = 1;  EVENT_TYPE_DISABLE_CODEIUM = 2;  EVENT_TYPE_SHOW_PREVIOUS_COMPLETION = 3;  EVENT_TYPE_SHOW_NEXT_COMPLETION = 4;  EVENT_TYPE_COPILOT_STATUS = 5;  EVENT_TYPE_COMPLETION_SUPPRESSED = 6;  EVENT_TYPE_MEMORY_STATS = 8;  EVENT_TYPE_LOCAL_CONTEXT_RELEVANCE_CHECK = 9;  EVENT_TYPE_ACTIVE_EDITOR_CHANGED = 10;  EVENT_TYPE_SHOW_PREVIOUS_CORTEX_STEP = 11;  EVENT_TYPE_SHOW_NEXT_CORTEX_STEP = 12;  EVENT_TYPE_INDEXER_STATS = 13;  EVENT_TYPE_SYSTEM_METRICS_TELEMETRY = 14;}
+enum CommandRequestSource {  COMMAND_REQUEST_SOURCE_UNSPECIFIED = 0;  COMMAND_REQUEST_SOURCE_DEFAULT = 1;  COMMAND_REQUEST_SOURCE_FUNCTION_CODE_LENS = 2;  COMMAND_REQUEST_SOURCE_CLASS_CODE_LENS = 3;  COMMAND_REQUEST_SOURCE_RIGHT_CLICK_REFACTOR = 4;  COMMAND_REQUEST_SOURCE_SELECTION_HINT_CODE_LENS = 5;  COMMAND_REQUEST_SOURCE_LINE_HINT_CODE_LENS = 6;  COMMAND_REQUEST_SOURCE_PLAN = 7;  COMMAND_REQUEST_SOURCE_FOLLOWUP = 8;  COMMAND_REQUEST_SOURCE_PASTE_AND_TRANSLATE = 9;  COMMAND_REQUEST_SOURCE_SUPERCOMPLETE = 10;  COMMAND_REQUEST_SOURCE_FUNCTION_DOCSTRING = 11;  COMMAND_REQUEST_SOURCE_FAST_APPLY = 12;  COMMAND_REQUEST_SOURCE_TERMINAL = 13;  COMMAND_REQUEST_SOURCE_TAB_JUMP = 14;}
 enum ContextSnippetType {  CONTEXT_SNIPPET_TYPE_UNSPECIFIED = 0;  CONTEXT_SNIPPET_TYPE_RAW_SOURCE = 1;  CONTEXT_SNIPPET_TYPE_SIGNATURE = 2;  CONTEXT_SNIPPET_TYPE_NODEPATH = 3;}
 enum IndexChoice {  INDEX_CHOICE_UNSPECIFIED = 0;  INDEX_CHOICE_GITHUB_BASE = 1;  INDEX_CHOICE_SLACK_BASE = 2;  INDEX_CHOICE_SLACK_AGGREGATE = 3;  INDEX_CHOICE_GOOGLE_DRIVE_BASE = 4;  INDEX_CHOICE_JIRA_BASE = 5;  INDEX_CHOICE_SCM = 6;}
 enum DocumentType {  DOCUMENT_TYPE_UNSPECIFIED = 0;  DOCUMENT_TYPE_SLACK_MESSAGE = 1;  DOCUMENT_TYPE_SLACK_CHANNEL = 2;  DOCUMENT_TYPE_GITHUB_ISSUE = 3;  DOCUMENT_TYPE_GITHUB_ISSUE_COMMENT = 4;  DOCUMENT_TYPE_GITHUB_REPO = 8;  DOCUMENT_TYPE_GOOGLE_DRIVE_FILE = 5;  DOCUMENT_TYPE_GOOGLE_DRIVE_FOLDER = 6;  DOCUMENT_TYPE_JIRA_ISSUE = 7;  DOCUMENT_TYPE_CCI = 9;}
 enum CascadeCommandsAutoExecution {  CASCADE_COMMANDS_AUTO_EXECUTION_UNSPECIFIED = 0;  CASCADE_COMMANDS_AUTO_EXECUTION_OFF = 1;  CASCADE_COMMANDS_AUTO_EXECUTION_AUTO = 2;  CASCADE_COMMANDS_AUTO_EXECUTION_EAGER = 3;  CASCADE_COMMANDS_AUTO_EXECUTION_DISABLED = 4;}
-enum RefreshCustomizationType {  REFRESH_CUSTOMIZATION_TYPE_UNSPECIFIED = 0;  REFRESH_CUSTOMIZATION_TYPE_RULE = 1;  REFRESH_CUSTOMIZATION_TYPE_WORKFLOW = 2;}
-enum ProductEventType {  EVENT_UNSPECIFIED = 0;  WINDSURF_EDITOR_READY = 251;  WINDSURF_EXTENSION_START = 253;  WINDSURF_EXTENSION_ACTIVATED = 32;  LS_DOWNLOAD_START = 1;  LS_DOWNLOAD_COMPLETE = 2;  LS_DOWNLOAD_FAILURE = 5;  LS_BINARY_STARTUP = 250;  LS_STARTUP = 3;  LS_FAILURE = 4;  AUTOCOMPLETE_ACCEPTED = 6;  AUTOCOMPLETE_ONE_WORD_ACCEPTED = 7;  CHAT_MESSAGE_SENT = 8;  CHAT_MENTION_INSERT = 13;  CHAT_MENTION_MENU_OPEN = 19;  CHAT_OPEN_SETTINGS = 14;  CHAT_OPEN_CONTEXT_SETTINGS = 15;  CHAT_WITH_CODEBASE = 16;  CHAT_NEW_CONVERSATION = 17;  CHAT_CHANGE_MODEL = 18;  CHAT_TOGGLE_FOCUS_INSERT_TEXT = 34;  FUNCTION_REFACTOR = 28;  EXPLAIN_CODE_BLOCK = 29;  FUNCTION_ADD_DOCSTRING = 30;  EXPLAIN_PROBLEM = 31;  COMMAND_BOX_OPENED = 9;  COMMAND_SUBMITTED = 10;  COMMAND_ACCEPTED = 11;  COMMAND_REJECTED = 12;  WS_ONBOARDING_LANDING_PAGE_OPENED = 20;  WS_ONBOARDING_SETUP_PAGE_OPENED = 21;  WS_ONBOARDING_KEYBINDINGS_PAGE_OPENED = 22;  WS_ONBOARDING_MIGRATION_SCOPE_PAGE_OPENED = 23;  WS_ONBOARDING_IMPORT_PAGE_OPENED = 24;  WS_ONBOARDING_AUTH_PAGE_OPENED = 25;  WS_ONBOARDING_AUTH_MANUAL_PAGE_OPENED = 26;  WS_ONBOARDING_CHOOSE_THEME_PAGE_OPENED = 35;  WS_ONBOARDING_COMPLETED = 27;  WS_SKIPPED_ONBOARDING = 69;  WS_SETTINGS_PAGE_OPEN = 72;  WS_SETTINGS_PAGE_OPEN_WITH_SETTING_FOCUS = 73;  EMPTY_WORKSPACE_PAGE_OPENED = 209;  EMPTY_WORKSPACE_PAGE_RECENT_FOLDERS_CLICKED = 210;  EMPTY_WORKSPACE_PAGE_OPEN_FOLDER_CLICKED = 211;  EMPTY_WORKSPACE_PAGE_GENERATE_PROJECT_CLICKED = 212;  PROVIDE_FEEDBACK = 33;  CASCADE_MESSAGE_SENT = 36;  WS_OPEN_CASCADE_MEMORIES_PANEL = 38;  PROVIDE_MESSAGE_FEEDBACK = 41;  CASCADE_MEMORY_DELETED = 42;  CASCADE_STEP_COMPLETED = 43;  ACKNOWLEDGE_CASCADE_CODE_EDIT = 44;  CASCADE_WEB_TOOLS_OPEN_READ_URL_MARKDOWN = 45;  CASCADE_WEB_TOOLS_OPEN_CHUNK_MARKDOWN = 46;  CASCADE_MCP_SERVER_INIT = 64;  CASCADE_KNOWLEDGE_BASE_ITEM_OPENED = 113;  CASCADE_VIEW_LOADED = 119;  CASCADE_CONTEXT_SCOPE_ITEM_ATTACHED = 173;  CASCADE_CLICK_EVENT = 65;  CASCADE_IMPRESSION_EVENT = 67;  OPEN_CHANGELOG = 37;  CURSOR_DETECTED = 39;  VSCODE_DETECTED = 40;  JETBRAINS_DETECTED = 153;  CROSS_SELL_EXTENSION_DOWNLOAD_WINDSURF_CLICK = 47;  CROSS_SELL_EXTENSION_DOWNLOAD_WINDSURF_NUDGE_IMPRESSION = 48;  WS_PROBLEMS_TAB_SEND_ALL_TO_CASCADE = 49;  WS_PROBLEMS_TAB_SEND_ALL_IN_FILE_TO_CASCADE = 50;  WS_CASCADE_BAR_FILE_NAV = 51;  WS_CASCADE_BAR_HUNK_NAV = 52;  WS_CASCADE_BAR_ACCEPT_FILE = 53;  WS_CASCADE_BAR_REJECT_FILE = 54;  WS_CUSTOM_APP_ICON_MODAL_OPEN = 55;  WS_CUSTOM_APP_ICON_SELECT_CLASSIC = 56;  WS_CUSTOM_APP_ICON_SELECT_CLASSIC_LIGHT = 57;  WS_CUSTOM_APP_ICON_SELECT_RETRO = 58;  WS_CUSTOM_APP_ICON_SELECT_BLUEPRINT = 59;  WS_CUSTOM_APP_ICON_SELECT_HAND_DRAWN = 60;  WS_CUSTOM_APP_ICON_SELECT_SUNSET = 61;  WS_CUSTOM_APP_ICON_SELECT_VALENTINE = 66;  WS_CUSTOM_APP_ICON_SELECT_PIXEL_SURF = 82;  ENTERED_MCP_TOOLBAR_TAB = 63;  CLICKED_TO_CONFIGURE_MCP = 62;  WS_SETTINGS_UPDATED = 68;  BROWSER_PREVIEW_DOM_ELEMENT = 70;  BROWSER_PREVIEW_CONSOLE_OUTPUT = 71;  WS_SETTINGS_CHANGED_BY_USER = 74;  WS_GENERATE_COMMIT_MESSAGE_CLICKED = 75;  WS_GENERATE_COMMIT_MESSAGE_ERRORED = 76;  WS_CLICKED_COMMIT_FROM_SCM_PANEL = 77;  WS_CANCELED_GENERATE_COMMIT_MESSAGE = 79;  USING_DEV_EXTENSION = 78;  WS_APP_DEPLOYMENT_CREATE_PROJECT = 80;  WS_APP_DEPLOYMENT_DEPLOY_PROJECT = 81;  CASCADE_OPEN_ACTIVE_CONVERSATION_DROPDOWN = 114;  CASCADE_SELECT_ACTIVE_CONVERSATION_ON_DROPDOWN = 115;  CASCADE_NAVIGATE_ACTIVE_CONVERSATION_ON_DROPDOWN = 122;  CASCADE_SNOOZE_CONVERSATION_ON_DROPDOWN = 123;  CASCADE_TOGGLE_NOTIFICATION_ON_DROPDOWN = 124;  CASCADE_SELECT_NOTIFICATION_ON_DROPDOWN = 125;  CASCADE_NAVIGATE_NOTIFICATION_ON_DROPDOWN = 126;  CASCADE_DISMISS_NOTIFICATION_ON_DROPDOWN = 127;  CASCADE_TRAJECTORY_SHARE_COPY_LINK = 137;  CASCADE_TRAJECTORY_SHARE_CREATE_LINK = 138;  CASCADE_CUSTOMIZATIONS_TAB_CHANGE = 139;  CASCADE_WORKFLOW_OPEN = 140;  CASCADE_NEW_WORKFLOW_CLICKED = 141;  CASCADE_NEW_GLOBAL_WORKFLOW_CLICKED = 184;  CASCADE_WORKFLOW_REFRESH_CLICKED = 142;  CASCADE_RULE_OPEN = 143;  CASCADE_NEW_RULE_CLICKED = 144;  CASCADE_NEW_GLOBAL_RULE_CLICKED = 145;  CASCADE_RULE_REFRESH_CLICKED = 146;  CASCADE_IMPORT_RULES_FROM_CURSOR_CLICKED = 147;  WS_IMPORT_CURSOR_RULES_COMMAND_PALETTE = 152;  CASCADE_CHANGES_ACCEPT_ALL = 83;  CASCADE_CHANGES_REJECT_ALL = 84;  CASCADE_MEMORIES_EDIT = 85;  CASCADE_MEMORIES_VIEW = 86;  KEYBOARD_SHORTCUT = 136;  CASCADE_INSERT_AT_MENTION = 87;  CASCADE_ERROR_STEP = 120;  CASCADE_SUGGESTED_RESPONSES_SUGGESTION_CLICKED = 121;  CASCADE_PLUGIN_PANEL_OPENED = 128;  CASCADE_PLUGIN_PAGE_OPENED = 129;  CASCADE_PLUGIN_INSTALLED = 130;  CASCADE_PLUGIN_DISABLED = 131;  CASCADE_PLUGIN_ENABLED = 132;  CASCADE_PLUGIN_INSTALLATION_ERROR = 133;  CASCADE_PLUGIN_TOOL_ENABLED = 134;  CASCADE_PLUGIN_TOOL_DISABLED = 135;  WEBSITE_NOT_FOUND_PAGE = 88;  WEBSITE_AUTH_REDIRECT_LONG_WAIT = 89;  WEBSITE_AUTH_REDIRECT_ERROR = 90;  WEBSITE_AUTH_REDIRECT_SUCCESS = 112;  WEBSITE_PAGE_VISIT = 175;  WEBSITE_SIGNUP_INFO = 176;  WEBSITE_START_PLAN_CHECKOUT = 177;  WEBSITE_START_UPDATE_PAYMENT = 202;  WEBSITE_START_VIEW_INVOICES = 203;  WEBSITE_UNIVERSITY_LECTURE_VIEW = 214;  WEBSITE_DISALLOW_ENTERPRISE_LOGIN = 224;  WEBSITE_SSO_LOGIN_REDIRECT = 225;  WEBSITE_ATTEMPT_TO_LOGIN = 226;  WEBSITE_SUCCESSFUL_LOGIN = 227;  WEBSITE_FAILED_LOGIN = 228;  JB_OPEN_PLAN_INFO = 91;  JB_SNOOZE_PLUGIN = 92;  JB_TOGGLE_PLUGIN_STATUS = 93;  JB_SWITCH_CHANNEL = 94;  JB_OPEN_SETTINGS = 95;  JB_PLUGIN_LOG_IN = 96;  JB_PLUGIN_LOG_OUT = 97;  JB_OPEN_QUICK_REFERENCE = 98;  JB_EDIT_KEYBOARD_SHORTCUTS = 99;  JB_CASCADE_BAR_CASCADE_ICON = 100;  JB_CASCADE_BAR_FILE_NAV = 101;  JB_CASCADE_BAR_HUNK_NAV = 102;  JB_CASCADE_BAR_ACCEPT_FILE = 103;  JB_CASCADE_BAR_REJECT_FILE = 104;  JB_INLAY_HUNK_ACCEPT = 105;  JB_INLAY_HUNK_REJECT = 106;  JB_DIFF_RE_RENDER = 107;  JB_ONBOARDING_OPENED = 108;  JB_ONBOARDING_COMPLETED = 109;  JB_ONBOARDING_SKIPPED = 110;  JB_ONBOARDING_LEARN_MORE = 111;  JB_DIFF_RESOLUTION_ERRORED = 116;  JB_ACKNOWLEDGE_CODE_EDIT_ERRORED = 117;  JB_OPEN_SETTINGS_NOTIFICATION = 118;  JB_MCP_ADD_SERVER = 148;  JB_MCP_SAVE_CONFIG = 149;  JB_MCP_EXPAND_TOOLS = 150;  JB_DISABLE_AUTOGEN_MEMORY = 151;  JB_TOGGLE_AUTOCOMPLETE = 154;  JB_LOGIN_MANUAL_AUTH_TOKEN = 174;  JB_AUTO_UPDATED = 179;  JB_DRAG_DROP_FILE = 182;  JB_AUTO_OPEN_CHAT_WINDOW = 183;  WS_TERMINAL_INTEGRATION_FORCE_EXIT = 155;  KNOWLEDGE_BASE_ITEM_CREATED = 156;  KNOWLEDGE_BASE_ITEM_EDITED = 157;  KNOWLEDGE_BASE_ITEM_DELETED = 158;  KNOWLEDGE_BASE_ITEM_READ = 159;  KNOWLEDGE_BASE_CONNECTION_CREATE = 160;  KNOWLEDGE_BASE_CONNECTION_REMOVE = 161;  TEAM_CONFIG_TOGGLE_AUTO_RUN_COMMANDS = 162;  TEAM_CONFIG_TOGGLE_MCP_SERVERS = 163;  TEAM_CONFIG_TOGGLE_APP_DEPLOYMENTS = 164;  TEAM_CONFIG_TOGGLE_SANDBOX_APP_DEPLOYMENTS = 165;  TEAM_CONFIG_TOGGLE_TEAMS_APP_DEPLOYMENTS = 166;  TEAM_CONFIG_TOGGLE_GITHUB_REVIEWS = 167;  TEAM_CONFIG_TOGGLE_GITHUB_DESCRIPTION_EDITS = 168;  TEAM_CONFIG_TOGGLE_PR_REVIEW_GUIDELINES = 169;  TEAM_CONFIG_TOGGLE_PR_DESCRIPTION_GUIDELINES = 170;  TEAM_CONFIG_TOGGLE_INDIVIDUAL_LEVEL_ANALYTICS = 171;  TEAM_CONFIG_TOGGLE_CONVERSATION_SHARING = 172;  TEAM_CONFIG_UPDATE_MCP_SERVERS = 178;  TEAM_CONFIG_TOGGLE_GITHUB_AUTO_REVIEWS = 207;  TEAM_CONFIG_UPDATE_TOP_UP_SETTINGS = 213;  BROWSER_OPEN = 180;  CASCADE_WEB_TOOLS_OPEN_BROWSER_MARKDOWN = 181;  BROWSER_PAGE_LOAD_SUCCESS = 206;  BROWSER_TOOLBAR_INSERT_PAGE_MENTION = 208;  BROWSER_INSERT_TEXT_CONTENT = 215;  BROWSER_INSERT_SCREENSHOT = 216;  BROWSER_INSERT_CODE_BLOCK = 217;  BROWSER_INSERT_LOG_BLOCK = 218;  BROWSER_INSERT_CONSOLE_OUTPUT = 219;  BROWSER_INSERT_DOM_ELEMENT = 220;  SUPERCOMPLETE_REQUEST_STARTED = 195;  SUPERCOMPLETE_CACHE_HIT = 196;  SUPERCOMPLETE_ERROR_GETTING_RESPONSE = 197;  SUPERCOMPLETE_NO_RESPONSE = 185;  SUPERCOMPLETE_REQUEST_SUCCEEDED = 186;  SUPERCOMPLETE_FILTERED = 187;  TAB_JUMP_REQUEST_STARTED = 188;  TAB_JUMP_CACHE_HIT = 189;  TAB_JUMP_ERROR_GETTING_RESPONSE = 190;  TAB_JUMP_NO_RESPONSE = 191;  TAB_JUMP_PROCESSING_COMPLETE = 192;  TAB_JUMP_FILTERED = 193;  TAB_JUMP_ERROR_UI_RENDERED = 194;  AUTO_CASCADE_PR_TITLE_GENERATED = 198;  AUTO_CASCADE_PR_DESCRIPTION_GENERATED = 199;  AUTO_CASCADE_PR_REVIEW_REQUESTED = 200;  AUTO_CASCADE_PR_REVIEW_GENERATED = 201;  AUTO_CASCADE_GITHUB_CONNECTION_ADDED = 204;  AUTO_CASCADE_GITHUB_CONNECTION_REMOVED = 205;  AUTOCOMPLETE_CHAT_NO_RESPONSE = 221;  AUTOCOMPLETE_CHAT_ERROR_GETTING_RESPONSE = 222;  AUTOCOMPLETE_CHAT_REQUEST_ACCEPTED = 223;}
-enum AuthSource {  AUTH_SOURCE_CODEIUM = 0;  AUTH_SOURCE_DEEPNOTE = 1;  AUTH_SOURCE_CODESANDBOX = 2;  AUTH_SOURCE_STACKBLITZ = 3;  AUTH_SOURCE_VALTOWN = 4;  AUTH_SOURCE_HEX = 5;  AUTH_SOURCE_ZAPIER = 6;  AUTH_SOURCE_SUPERBLOCKS = 7;  AUTH_SOURCE_EMBARCADERO = 8;}
-enum TerminalShellCommandSource {  TERMINAL_SHELL_COMMAND_SOURCE_UNSPECIFIED = 0;  TERMINAL_SHELL_COMMAND_SOURCE_USER = 1;  TERMINAL_SHELL_COMMAND_SOURCE_CASCADE = 2;}
-enum Model {  MODEL_UNSPECIFIED = 0;  MODEL_EMBED_6591 = 20;  MODEL_8341 = 33;  MODEL_8528 = 42;  MODEL_9024 = 41;  MODEL_14602 = 112;  MODEL_15133 = 115;  MODEL_15302 = 119;  MODEL_15335 = 121;  MODEL_15336 = 122;  MODEL_15931 = 167;  MODEL_QUERY_9905 = 48;  MODEL_QUERY_11791 = 66;  MODEL_CHAT_11120 = 57;  MODEL_CHAT_11121 = 58;  MODEL_CHAT_12119 = 70;  MODEL_CHAT_12121 = 69;  MODEL_CHAT_12437 = 74;  MODEL_CHAT_12491 = 76;  MODEL_CHAT_12623 = 78;  MODEL_CHAT_12950 = 79;  MODEL_CHAT_12968 = 101;  MODEL_CHAT_13404 = 102;  MODEL_CHAT_13566 = 103;  MODEL_CHAT_13930 = 108;  MODEL_CHAT_14255 = 110;  MODEL_CHAT_14256 = 111;  MODEL_CHAT_14942 = 114;  MODEL_CHAT_15305 = 120;  MODEL_CHAT_15600 = 123;  MODEL_CHAT_16801 = 124;  MODEL_CHAT_16718 = 175;  MODEL_CHAT_15729 = 168;  MODEL_CHAT_16579 = 173;  MODEL_CHAT_16579_CRUSOE = 174;  MODEL_CHAT_18805 = 181;  MODEL_CHAT_18468 = 210;  MODEL_CHAT_19484 = 233;  MODEL_CHAT_20706 = 235;  MODEL_CHAT_21779 = 245;  MODEL_CHAT_19040 = 211;  MODEL_CHAT_19820 = 229;  MODEL_CHAT_19821 = 230;  MODEL_CHAT_19821_CRUSOE = 244;  MODEL_CHAT_23310 = 269;  MODEL_CHAT_28580 = 330;  MODEL_CHAT_28581 = 331;  MODEL_CHAT_28582 = 332;  MODEL_CHAT_28583 = 333;  MODEL_CHAT_28584 = 334;  MODEL_CHAT_19822 = 231;  MODEL_CHAT_22798 = 255;  MODEL_CHAT_22799 = 256;  MODEL_CHAT_22800 = 257;  MODEL_CHAT_23151 = 267;  MODEL_CHAT_23152 = 268;  MODEL_CASCADE_22893 = 270;  MODEL_CASCADE_20064 = 225;  MODEL_CASCADE_20065 = 236;  MODEL_CASCADE_20066 = 237;  MODEL_CASCADE_20067 = 238;  MODEL_CASCADE_20068 = 239;  MODEL_CASCADE_20069 = 240;  MODEL_CASCADE_20070 = 250;  MODEL_CASCADE_20071 = 251;  MODEL_CASCADE_20072 = 252;  MODEL_CASCADE_20073 = 253;  MODEL_CASCADE_20074 = 254;  MODEL_CASCADE_20075 = 307;  MODEL_CASCADE_20076 = 308;  MODEL_CASCADE_20077 = 309;  MODEL_CASCADE_20078 = 310;  MODEL_CASCADE_20079 = 311;  MODEL_CASCADE_20080 = 297;  MODEL_CASCADE_20081 = 298;  MODEL_CASCADE_20082 = 299;  MODEL_CASCADE_20083 = 300;  MODEL_CASCADE_20084 = 301;  MODEL_CASCADE_20085 = 302;  MODEL_CASCADE_20086 = 303;  MODEL_CASCADE_20087 = 304;  MODEL_CASCADE_20088 = 305;  MODEL_CASCADE_20089 = 306;  MODEL_DEEPSEEK_V3_INTERNAL = 247;  MODEL_DEEPSEEK_V3_0324_INTERNAL = 248;  MODEL_DEEPSEEK_R1_INTERNAL = 249;  MODEL_ANTHROPIC_WINDSURF_RESEARCH = 241;  MODEL_ANTHROPIC_WINDSURF_RESEARCH_THINKING = 242;  MODEL_DRAFT_11408 = 65;  MODEL_DRAFT_CHAT_11883 = 67;  MODEL_DRAFT_CHAT_12196 = 72;  MODEL_DRAFT_CHAT_12413 = 73;  MODEL_DRAFT_CHAT_13175 = 104;  MODEL_DRAFT_CHAT_19823 = 232;  MODEL_DRAFT_CHAT_20707 = 243;  MODEL_DRAFT_CHAT_22801 = 258;  MODEL_DRAFT_CHAT_23508 = 273;  MODEL_DRAFT_CASCADE_23672 = 274;  MODEL_CHAT_3_5_TURBO = 28;  MODEL_CHAT_GPT_4 = 30;  MODEL_CHAT_GPT_4_1106_PREVIEW = 37;  MODEL_TEXT_EMBEDDING_OPENAI_ADA = 91;  MODEL_TEXT_EMBEDDING_OPENAI_3_SMALL = 163;  MODEL_TEXT_EMBEDDING_OPENAI_3_LARGE = 164;  MODEL_CHAT_GPT_4O_2024_05_13 = 71;  MODEL_CHAT_GPT_4O_2024_08_06 = 109;  MODEL_CHAT_GPT_4O_MINI_2024_07_18 = 113;  MODEL_CHAT_GPT_4_1_2025_04_14 = 259;  MODEL_CHAT_GPT_4_1_MINI_2025_04_14 = 260;  MODEL_CHAT_GPT_4_1_NANO_2025_04_14 = 261;  MODEL_CHAT_O1_PREVIEW = 117;  MODEL_CHAT_O1_MINI = 118;  MODEL_CHAT_O1 = 170;  MODEL_CHAT_O3_MINI = 207;  MODEL_CHAT_O3_MINI_LOW = 213;  MODEL_CHAT_O3_MINI_HIGH = 214;  MODEL_CHAT_O3 = 218;  MODEL_CHAT_O3_LOW = 262;  MODEL_CHAT_O3_HIGH = 263;  MODEL_CHAT_O4_MINI = 264;  MODEL_CHAT_O4_MINI_LOW = 265;  MODEL_CHAT_O4_MINI_HIGH = 266;  MODEL_CHAT_GPT_4_5 = 228;  MODEL_CODEX_MINI_LATEST = 287;  MODEL_CODEX_MINI_LATEST_LOW = 288;  MODEL_CODEX_MINI_LATEST_HIGH = 289;  MODEL_O3_PRO_2025_06_10 = 294;  MODEL_O3_PRO_2025_06_10_LOW = 295;  MODEL_O3_PRO_2025_06_10_HIGH = 296;  MODEL_GPT_OSS_120B = 326;  MODEL_GPT_5_NANO = 337;  MODEL_CHAT_GPT_5_MINIMAL = 338;  MODEL_CHAT_GPT_5_LOW = 339;  MODEL_CHAT_GPT_5 = 340;  MODEL_CHAT_GPT_5_HIGH = 341;  MODEL_CHAT_GPT_5_CODEX = 346;  MODEL_GOOGLE_GEMINI_1_0_PRO = 61;  MODEL_GOOGLE_GEMINI_1_5_PRO = 62;  MODEL_GOOGLE_GEMINI_EXP_1206 = 183;  MODEL_GOOGLE_GEMINI_2_0_FLASH = 184;  MODEL_GOOGLE_GEMINI_2_5_PRO = 246;  MODEL_GOOGLE_GEMINI_2_5_FLASH_PREVIEW_04_17 = 272;  MODEL_GOOGLE_GEMINI_2_5_FLASH_PREVIEW_05_20 = 275;  MODEL_GOOGLE_GEMINI_2_5_FLASH_PREVIEW_05_20_THINKING = 276;  MODEL_GOOGLE_GEMINI_2_5_FLASH = 312;  MODEL_GOOGLE_GEMINI_2_5_FLASH_THINKING = 313;  MODEL_GOOGLE_GEMINI_2_5_FLASH_LITE = 343;  MODEL_CLAUDE_CODE = 344;  MODEL_CLAUDE_3_OPUS_20240229 = 63;  MODEL_CLAUDE_3_SONNET_20240229 = 64;  MODEL_CLAUDE_3_HAIKU_20240307 = 172;  MODEL_CLAUDE_3_5_HAIKU_20241022 = 171;  MODEL_CLAUDE_3_5_SONNET_20240620 = 80;  MODEL_CLAUDE_3_5_SONNET_20241022 = 166;  MODEL_CLAUDE_3_7_SONNET_20250219 = 226;  MODEL_CLAUDE_3_7_SONNET_20250219_THINKING = 227;  MODEL_CLAUDE_3_5_SONNET_BYOK = 284;  MODEL_CLAUDE_3_7_SONNET_BYOK = 285;  MODEL_CLAUDE_3_7_SONNET_OPEN_ROUTER_BYOK = 319;  MODEL_CLAUDE_3_7_SONNET_THINKING_BYOK = 286;  MODEL_CLAUDE_3_7_SONNET_THINKING_OPEN_ROUTER_BYOK = 320;  MODEL_CLAUDE_4_OPUS_BYOK = 277;  MODEL_CLAUDE_4_OPUS_THINKING_BYOK = 278;  MODEL_CLAUDE_4_OPUS = 290;  MODEL_CLAUDE_4_OPUS_THINKING = 291;  MODEL_CLAUDE_4_SONNET_BYOK = 279;  MODEL_CLAUDE_4_SONNET_OPEN_ROUTER_BYOK = 321;  MODEL_CLAUDE_4_SONNET_THINKING_BYOK = 280;  MODEL_CLAUDE_4_SONNET_THINKING_OPEN_ROUTER_BYOK = 322;  MODEL_CLAUDE_4_SONNET = 281;  MODEL_CLAUDE_4_SONNET_THINKING = 282;  MODEL_CLAUDE_4_1_OPUS = 328;  MODEL_CLAUDE_4_1_OPUS_THINKING = 329;  MODEL_CLAUDE_4_SONNET_DATABRICKS = 292;  MODEL_CLAUDE_4_SONNET_THINKING_DATABRICKS = 293;  MODEL_TOGETHERAI_TEXT_EMBEDDING_M2_BERT = 81;  MODEL_TOGETHERAI_LLAMA_3_1_8B_INSTRUCT = 165;  MODEL_HUGGING_FACE_TEXT_EMBEDDING_M2_BERT = 82;  MODEL_HUGGING_FACE_TEXT_EMBEDDING_UAE_CODE = 83;  MODEL_HUGGING_FACE_TEXT_EMBEDDING_BGE = 84;  MODEL_HUGGING_FACE_TEXT_EMBEDDING_BLADE = 85;  MODEL_HUGGING_FACE_TEXT_EMBEDDING_ARCTIC_LARGE = 86;  MODEL_HUGGING_FACE_TEXT_EMBEDDING_E5_BASE = 87;  MODEL_HUGGING_FACE_TEXT_EMBEDDING_MXBAI = 88;  MODEL_LLAMA_3_1_8B_INSTRUCT = 106;  MODEL_LLAMA_3_1_70B_INSTRUCT = 107;  MODEL_LLAMA_3_1_405B_INSTRUCT = 105;  MODEL_LLAMA_3_3_70B_INSTRUCT = 208;  MODEL_LLAMA_3_3_70B_INSTRUCT_R1 = 209;  MODEL_LLAMA_3_1_70B_INSTRUCT_LONG_CONTEXT = 116;  MODEL_LLAMA_3_1_8B_HERMES_3 = 176;  MODEL_LLAMA_3_1_70B_HERMES_3 = 177;  MODEL_QWEN_2_5_7B_INSTRUCT = 178;  MODEL_QWEN_2_5_32B_INSTRUCT = 179;  MODEL_QWEN_2_5_72B_INSTRUCT = 180;  MODEL_QWEN_2_5_32B_INSTRUCT_R1 = 224;  MODEL_QWEN_3_235B_INSTRUCT = 324;  MODEL_QWEN_3_CODER_480B_INSTRUCT = 325;  MODEL_QWEN_3_CODER_480B_INSTRUCT_FAST = 327;  MODEL_GLM_4_5 = 342;  MODEL_LLAMA_FT_DEEPWIKI_ARTICLE = 335;  MODEL_LLAMA_FT_DEEPWIKI_HOVER = 336;  MODEL_NOMIC_TEXT_EMBEDDING_V1 = 89;  MODEL_NOMIC_TEXT_EMBEDDING_V1_5 = 90;  MODEL_MISTRAL_7B = 77;  MODEL_SALESFORCE_EMBEDDING_2R = 99;  MODEL_CUSTOM_VLLM = 182;  MODEL_TEI_BGE_M3 = 92;  MODEL_TEI_NOMIC_EMBED_TEXT_V1 = 93;  MODEL_TEI_INTFLOAT_E5_LARGE_INSTRUCT = 94;  MODEL_TEI_SNOWFLAKE_ARCTIC_EMBED_L = 95;  MODEL_TEI_UAE_CODE_LARGE_V1 = 96;  MODEL_TEI_B1ADE = 97;  MODEL_TEI_WHEREISAI_UAE_LARGE_V1 = 98;  MODEL_TEI_WHEREISAI_UAE_CODE_LARGE_V1 = 100;  MODEL_OPENAI_COMPATIBLE = 200;  MODEL_ANTHROPIC_COMPATIBLE = 201;  MODEL_VERTEX_COMPATIBLE = 202;  MODEL_BEDROCK_COMPATIBLE = 203;  MODEL_AZURE_COMPATIBLE = 204;  MODEL_DEEPSEEK_V3 = 205;  MODEL_DEEPSEEK_R1 = 206;  MODEL_DEEPSEEK_R1_SLOW = 215;  MODEL_DEEPSEEK_R1_FAST = 216;  MODEL_KIMI_K2 = 323;  MODEL_CUSTOM_OPEN_ROUTER = 185;  MODEL_XAI_GROK_2 = 212;  MODEL_XAI_GROK_3 = 217;  MODEL_XAI_GROK_3_MINI_REASONING = 234;  MODEL_XAI_GROK_CODE_FAST = 345;  MODEL_PRIVATE_1 = 219;  MODEL_PRIVATE_2 = 220;  MODEL_PRIVATE_3 = 221;  MODEL_PRIVATE_4 = 222;  MODEL_PRIVATE_5 = 223;  MODEL_PRIVATE_6 = 314;  MODEL_PRIVATE_7 = 315;  MODEL_PRIVATE_8 = 316;  MODEL_PRIVATE_9 = 317;  MODEL_PRIVATE_10 = 318;}
-enum APIProvider {  API_PROVIDER_UNSPECIFIED = 0;  API_PROVIDER_INTERNAL = 1;  API_PROVIDER_OPENAI = 2;  API_PROVIDER_GOOGLE_VERTEX = 3;  API_PROVIDER_ANTHROPIC = 4;  API_PROVIDER_VLLM = 5;  API_PROVIDER_TOGETHER_AI = 6;  API_PROVIDER_HUGGING_FACE = 7;  API_PROVIDER_NOMIC = 8;  API_PROVIDER_TEI = 9;  API_PROVIDER_OPENAI_COMPATIBLE_EXTERNAL = 10;  API_PROVIDER_ANTHROPIC_COMPATIBLE_EXTERNAL = 11;  API_PROVIDER_VERTEX_COMPATIBLE_EXTERNAL = 12;  API_PROVIDER_BEDROCK_COMPATIBLE_EXTERNAL = 13;  API_PROVIDER_AZURE_COMPATIBLE_EXTERNAL = 14;  API_PROVIDER_ANTHROPIC_BEDROCK = 15;  API_PROVIDER_FIREWORKS = 16;  API_PROVIDER_OPEN_ROUTER = 17;  API_PROVIDER_XAI = 18;  API_PROVIDER_ANTHROPIC_BYOK = 20;  API_PROVIDER_CEREBRAS = 21;  API_PROVIDER_XAI_BYOK = 22;  API_PROVIDER_GEMINI_OPENAI = 23;  API_PROVIDER_GOOGLE_GEMINI = 24;  API_PROVIDER_GOOGLE_GENAI_VERTEX = 25;  API_PROVIDER_ANTHROPIC_VERTEX = 26;  API_PROVIDER_DATABRICKS = 27;  API_PROVIDER_OPEN_ROUTER_BYOK = 28;  API_PROVIDER_ANTHROPIC_DEVIN = 29;  API_PROVIDER_FIREWORKS_DEVIN = 30;  API_PROVIDER_GROQ = 31;  API_PROVIDER_OPENAI_DEVIN = 32;  API_PROVIDER_LLAMA_FT_DEEPWIKI = 33;  API_PROVIDER_XAI_INTERNAL = 34;  API_PROVIDER_CEREBRAS_CACHE = 35;}
-enum ModelAlias {  MODEL_ALIAS_UNSPECIFIED = 0;  MODEL_ALIAS_CASCADE_BASE = 1;  MODEL_ALIAS_VISTA = 3;  MODEL_ALIAS_SHAMU = 4;  MODEL_ALIAS_SWE_1 = 5;  MODEL_ALIAS_SWE_1_LITE = 6;  MODEL_ALIAS_AUTO = 7;}
+enum SupercompleteTriggerCondition {  SUPERCOMPLETE_TRIGGER_CONDITION_UNSPECIFIED = 0;  SUPERCOMPLETE_TRIGGER_CONDITION_AUTOCOMPLETE_ACCEPT = 1;  SUPERCOMPLETE_TRIGGER_CONDITION_CURSOR_LINE_NAVIGATION = 2;  SUPERCOMPLETE_TRIGGER_CONDITION_TYPING = 3;  SUPERCOMPLETE_TRIGGER_CONDITION_FORCED = 4;  SUPERCOMPLETE_TRIGGER_CONDITION_TAB_JUMP_ACCEPT = 5;  SUPERCOMPLETE_TRIGGER_CONDITION_SUPERCOMPLETE_ACCEPT = 6;  SUPERCOMPLETE_TRIGGER_CONDITION_TAB_JUMP_PREDICTIVE = 7;  SUPERCOMPLETE_TRIGGER_CONDITION_AUTOCOMPLETE_PREDICTIVE = 8;  SUPERCOMPLETE_TRIGGER_CONDITION_SUPERCOMPLETE_PREDICTIVE = 9;  SUPERCOMPLETE_TRIGGER_CONDITION_TAB_JUMP_EDIT = 10;}
+enum ConversationalPlannerMode {  CONVERSATIONAL_PLANNER_MODE_UNSPECIFIED = 0;  CONVERSATIONAL_PLANNER_MODE_DEFAULT = 1;  CONVERSATIONAL_PLANNER_MODE_READ_ONLY = 2;  CONVERSATIONAL_PLANNER_MODE_NO_TOOL = 3;  CONVERSATIONAL_PLANNER_MODE_EXPLORE = 4;  CONVERSATIONAL_PLANNER_MODE_PLANNING = 5;  CONVERSATIONAL_PLANNER_MODE_AUTO = 6;}
 enum DeploymentProvider {  DEPLOYMENT_PROVIDER_UNSPECIFIED = 0;  DEPLOYMENT_PROVIDER_VERCEL = 1;  DEPLOYMENT_PROVIDER_NETLIFY = 2;  DEPLOYMENT_PROVIDER_CLOUDFLARE = 3;}
 enum CodeContextSource {  CODE_CONTEXT_SOURCE_UNSPECIFIED = 0;  CODE_CONTEXT_SOURCE_OPEN_DOCS = 1;  CODE_CONTEXT_SOURCE_SEARCH_RESULT = 2;  CODE_CONTEXT_SOURCE_IMPORT = 3;  CODE_CONTEXT_SOURCE_LOCAL_DIRECTORY = 4;  CODE_CONTEXT_SOURCE_LAST_ACTIVE_DOC = 5;  CODE_CONTEXT_SOURCE_ORACLE_ITEMS = 6;  CODE_CONTEXT_SOURCE_PINNED_CONTEXT = 7;  CODE_CONTEXT_SOURCE_RESEARCH_STATE = 8;  CODE_CONTEXT_SOURCE_GROUND_TRUTH_PLAN_EDIT = 9;  CODE_CONTEXT_SOURCE_COMMIT_GRAPH = 10;}
 enum MarkdownNodeType {  MARKDOWN_NODE_TYPE_UNSPECIFIED = 0;  MARKDOWN_NODE_TYPE_HEADER_1 = 1;  MARKDOWN_NODE_TYPE_HEADER_2 = 2;  MARKDOWN_NODE_TYPE_HEADER_3 = 3;  MARKDOWN_NODE_TYPE_HEADER_4 = 4;  MARKDOWN_NODE_TYPE_HEADER_5 = 5;  MARKDOWN_NODE_TYPE_HEADER_6 = 6;}
 enum ThirdPartyWebSearchProvider {  THIRD_PARTY_WEB_SEARCH_PROVIDER_UNSPECIFIED = 0;  THIRD_PARTY_WEB_SEARCH_PROVIDER_OPENAI = 1;}
 enum ThirdPartyWebSearchModel {  THIRD_PARTY_WEB_SEARCH_MODEL_UNSPECIFIED = 0;  THIRD_PARTY_WEB_SEARCH_MODEL_O3 = 1;  THIRD_PARTY_WEB_SEARCH_MODEL_GPT_4_1 = 2;  THIRD_PARTY_WEB_SEARCH_MODEL_O4_MINI = 3;}
-enum ConversationalPlannerMode {  CONVERSATIONAL_PLANNER_MODE_UNSPECIFIED = 0;  CONVERSATIONAL_PLANNER_MODE_DEFAULT = 1;  CONVERSATIONAL_PLANNER_MODE_READ_ONLY = 2;  CONVERSATIONAL_PLANNER_MODE_NO_TOOL = 3;}
-enum CascadeRunExtensionCodeAutoRun {  CASCADE_RUN_EXTENSION_CODE_AUTO_RUN_UNSPECIFIED = 0;  CASCADE_RUN_EXTENSION_CODE_AUTO_RUN_ENABLED = 1;  CASCADE_RUN_EXTENSION_CODE_AUTO_RUN_DISABLED = 2;  CASCADE_RUN_EXTENSION_CODE_AUTO_RUN_MODEL_DECIDES = 3;}
-enum ChatMessageSource {  CHAT_MESSAGE_SOURCE_UNSPECIFIED = 0;  CHAT_MESSAGE_SOURCE_USER = 1;  CHAT_MESSAGE_SOURCE_SYSTEM = 2;  CHAT_MESSAGE_SOURCE_UNKNOWN = 3;  CHAT_MESSAGE_SOURCE_TOOL = 4;  CHAT_MESSAGE_SOURCE_SYSTEM_PROMPT = 5;}
-enum PromptAnnotationKind {  PROMPT_ANNOTATION_KIND_UNSPECIFIED = 0;  PROMPT_ANNOTATION_KIND_COPY = 1;  PROMPT_ANNOTATION_KIND_PROMPT_CACHE = 2;}
+enum CascadeWebRequestsAutoExecution {  CASCADE_WEB_REQUESTS_AUTO_EXECUTION_UNSPECIFIED = 0;  CASCADE_WEB_REQUESTS_AUTO_EXECUTION_DISABLED = 1;  CASCADE_WEB_REQUESTS_AUTO_EXECUTION_ALLOWLIST = 2;  CASCADE_WEB_REQUESTS_AUTO_EXECUTION_TURBO = 3;}
 enum DeploymentBuildStatus {  DEPLOYMENT_BUILD_STATUS_UNSPECIFIED = 0;  DEPLOYMENT_BUILD_STATUS_QUEUED = 1;  DEPLOYMENT_BUILD_STATUS_INITIALIZING = 2;  DEPLOYMENT_BUILD_STATUS_BUILDING = 3;  DEPLOYMENT_BUILD_STATUS_ERROR = 4;  DEPLOYMENT_BUILD_STATUS_READY = 5;  DEPLOYMENT_BUILD_STATUS_CANCELED = 6;}
-enum StopReason {  STOP_REASON_UNSPECIFIED = 0;  STOP_REASON_INCOMPLETE = 1;  STOP_REASON_STOP_PATTERN = 2;  STOP_REASON_MAX_TOKENS = 3;  STOP_REASON_MIN_LOG_PROB = 4;  STOP_REASON_MAX_NEWLINES = 5;  STOP_REASON_EXIT_SCOPE = 6;  STOP_REASON_NONFINITE_LOGIT_OR_PROB = 7;  STOP_REASON_FIRST_NON_WHITESPACE_LINE = 8;  STOP_REASON_PARTIAL = 9;  STOP_REASON_FUNCTION_CALL = 10;  STOP_REASON_CONTENT_FILTER = 11;  STOP_REASON_NON_INSERTION = 12;  STOP_REASON_ERROR = 13;}
-enum FilterReason {  FILTER_REASON_NONE = 0;  FILTER_REASON_INCOMPLETE = 1;  FILTER_REASON_EMPTY = 2;  FILTER_REASON_REPETITIVE = 3;  FILTER_REASON_DUPLICATE = 4;  FILTER_REASON_LONG_LINE = 5;  FILTER_REASON_COMPLETIONS_CUTOFF = 6;  FILTER_REASON_ATTRIBUTION = 7;  FILTER_REASON_NON_MATCHING = 8;  FILTER_REASON_NON_INSERTION = 9;}
-enum ExperimentKey {  UNSPECIFIED = 0;  USE_INTERNAL_CHAT_MODEL = 36;  RECORD_FILES = 47;  NO_SAMPLER_EARLY_STOP = 48;  CM_MEMORY_TELEMETRY = 53;  LANGUAGE_SERVER_VERSION = 55;  LANGUAGE_SERVER_AUTO_RELOAD = 56;  ONLY_MULTILINE = 60;  USE_AUTOCOMPLETE_MODEL = 64;  USE_ATTRIBUTION_FOR_INDIVIDUAL_TIER = 68;  CHAT_MODEL_CONFIG = 78;  COMMAND_MODEL_CONFIG = 79;  MIN_IDE_VERSION = 81;  API_SERVER_VERBOSE_ERRORS = 84;  DEFAULT_ENABLE_SEARCH = 86;  COLLECT_ONBOARDING_EVENTS = 87;  COLLECT_EXAMPLE_COMPLETIONS = 88;  USE_MULTILINE_MODEL = 89;  ATTRIBUTION_KILL_SWITCH = 92;  FAST_MULTILINE = 94;  SINGLE_COMPLETION = 95;  STOP_FIRST_NON_WHITESPACE_LINE = 96;  CORTEX_CONFIG = 102;  MODEL_CHAT_11121_VARIANTS = 103;  INCLUDE_PROMPT_COMPONENTS = 105;  NON_TEAMS_KILL_SWITCH = 106;  PERSIST_CODE_TRACKER = 108;  API_SERVER_LIVENESS_PROBE = 112;  CHAT_COMPLETION_TOKENS_SOFT_LIMIT = 114;  CHAT_TOKENS_SOFT_LIMIT = 115;  DISABLE_COMPLETIONS_CACHE = 118;  LLAMA3_405B_KILL_SWITCH = 119;  USE_COMMAND_DOCSTRING_GENERATION = 121;  ENABLE_SUPERCOMPLETE = 123;  SENTRY = 136;  FAST_SINGLELINE = 144;  R2_LANGUAGE_SERVER_DOWNLOAD = 147;  SPLIT_MODEL = 152;  WINDSURF_SENTRY_SAMPLE_RATE = 198;  API_SERVER_CUTOFF = 158;  FAST_SPEED_KILL_SWITCH = 159;  PREDICTIVE_MULTILINE = 160;  SUPERCOMPLETE_FILTER_REVERT = 125;  SUPERCOMPLETE_FILTER_PREFIX_MATCH = 126;  SUPERCOMPLETE_FILTER_SCORE_THRESHOLD = 127;  SUPERCOMPLETE_FILTER_INSERTION_CAP = 128;  SUPERCOMPLETE_FILTER_DELETION_CAP = 133;  SUPERCOMPLETE_FILTER_WHITESPACE_ONLY = 156;  SUPERCOMPLETE_FILTER_NO_OP = 170;  SUPERCOMPLETE_FILTER_SUFFIX_MATCH = 176;  SUPERCOMPLETE_FILTER_PREVIOUSLY_SHOWN = 182;  SUPERCOMPLETE_MIN_SCORE = 129;  SUPERCOMPLETE_MAX_INSERTIONS = 130;  SUPERCOMPLETE_LINE_RADIUS = 131;  SUPERCOMPLETE_MAX_DELETIONS = 132;  SUPERCOMPLETE_RECENT_STEPS_DURATION = 138;  SUPERCOMPLETE_MAX_TRAJECTORY_STEPS = 154;  SUPERCOMPLETE_MAX_TRAJECTORY_STEP_SIZE = 203;  SUPERCOMPLETE_DISABLE_TYPING_CACHE = 231;  SUPERCOMPLETE_ALWAYS_USE_CACHE_ON_EQUAL_STATE = 293;  SUPERCOMPLETE_CACHE_ON_PARENT_ID_KILL_SWITCH = 297;  SUPERCOMPLETE_PRUNE_RESPONSE = 140;  SUPERCOMPLETE_PRUNE_MAX_INSERT_DELETE_LINE_DELTA = 141;  SUPERCOMPLETE_MODEL_CONFIG = 145;  SUPERCOMPLETE_ON_TAB = 151;  SUPERCOMPLETE_INLINE_PURE_DELETE = 171;  SUPERCOMPLETE_INLINE_RICH_GHOST_TEXT_INSERTIONS = 218;  MODEL_CHAT_19821_VARIANTS = 308;  SUPERCOMPLETE_MAX_CONCURRENT_REQUESTS = 284;  COMMAND_PROMPT_CACHE_CONFIG = 255;  CUMULATIVE_PROMPT_CONFIG = 256;  CUMULATIVE_PROMPT_CASCADE_CONFIG = 279;  TAB_JUMP_CUMULATIVE_PROMPT_CONFIG = 301;  COMPLETION_SPEED_SUPERCOMPLETE_CACHE = 207;  COMPLETION_SPEED_PREDICTIVE_SUPERCOMPLETE = 208;  COMPLETION_SPEED_TAB_JUMP_CACHE = 209;  COMPLETION_SPEED_PREDICTIVE_TAB_JUMP = 210;  COMPLETION_SPEED_BLOCK_TAB_JUMP_ON_PREDICTIVE_SUPERCOMPLETE = 294;  JETBRAINS_ENABLE_ONBOARDING = 137;  ENABLE_AUTOCOMPLETE_DURING_INTELLISENSE = 146;  COMMAND_BOX_ON_TOP = 155;  CONTEXT_ACTIVE_DOCUMENT_FRACTION = 149;  CONTEXT_FORCE_LOCAL_CONTEXT = 178;  CROSS_SELL_EXTENSION_DOWNLOAD_WINDSURF = 220;  MODEL_LLAMA_3_1_70B_INSTRUCT_LONG_CONTEXT_VARIANTS = 295;  USE_AUTOCOMPLETE_MODEL_SERVER_SIDE = 163;  SUPERCOMPLETE_NO_CONTEXT = 165;  SUPERCOMPLETE_NO_ACTIVE_NODE = 166;  TAB_JUMP_ENABLED = 168;  TAB_JUMP_ACCEPT_ENABLED = 169;  TAB_JUMP_LINE_RADIUS = 177;  TAB_JUMP_MIN_FILTER_RADIUS = 197;  TAB_JUMP_ON_ACCEPT_ONLY = 205;  TAB_JUMP_FILTER_IN_SELECTION = 215;  TAB_JUMP_MODEL_CONFIG = 237;  TAB_JUMP_FILTER_NO_OP = 238;  TAB_JUMP_FILTER_REVERT = 239;  TAB_JUMP_FILTER_SCORE_THRESHOLD = 240;  TAB_JUMP_FILTER_WHITESPACE_ONLY = 241;  TAB_JUMP_FILTER_INSERTION_CAP = 242;  TAB_JUMP_FILTER_DELETION_CAP = 243;  TAB_JUMP_PRUNE_RESPONSE = 260;  TAB_JUMP_PRUNE_MAX_INSERT_DELETE_LINE_DELTA = 261;  TAB_JUMP_STOP_TOKEN_MIDSTREAM = 317;  VIEWED_FILE_TRACKER_CONFIG = 211;  SNAPSHOT_TO_STEP_OPTIONS_OVERRIDE = 305;  STREAMING_EXTERNAL_COMMAND = 172;  USE_SPECIAL_EDIT_CODE_BLOCK = 179;  ENABLE_SUGGESTED_RESPONSES = 187;  CASCADE_BASE_MODEL_ID = 190;  CASCADE_PLAN_BASED_CONFIG_OVERRIDE = 266;  CASCADE_GLOBAL_CONFIG_OVERRIDE = 212;  CASCADE_BACKGROUND_RESEARCH_CONFIG_OVERRIDE = 193;  CASCADE_ENFORCE_QUOTA = 204;  CASCADE_ENABLE_AUTOMATED_MEMORIES = 224;  CASCADE_MEMORY_CONFIG_OVERRIDE = 314;  CASCADE_USE_REPLACE_CONTENT_EDIT_TOOL = 228;  CASCADE_VIEW_FILE_TOOL_CONFIG_OVERRIDE = 258;  CASCADE_USE_EXPERIMENT_CHECKPOINTER = 247;  CASCADE_ENABLE_CUSTOM_RECIPES = 236;  CASCADE_ENABLE_MCP_TOOLS = 245;  CASCADE_AUTO_FIX_LINTS = 275;  USE_ANTHROPIC_TOKEN_EFFICIENT_TOOLS_BETA = 296;  CASCADE_USER_MEMORIES_IN_SYS_PROMPT = 289;  CASCADE_ENABLE_PROXY_WEB_SERVER = 290;  COLLAPSE_ASSISTANT_MESSAGES = 312;  CASCADE_DEFAULT_MODEL_OVERRIDE = 321;  ENABLE_SMART_COPY = 181;  ENABLE_COMMIT_MESSAGE_GENERATION = 185;  SKIP_CONSISTENCY_MANAGER = 194;  FIREWORKS_ON_DEMAND_DEPLOYMENT = 276;  API_SERVER_CLIENT_USE_HTTP_2 = 202;  AUTOCOMPLETE_DEFAULT_DEBOUNCE_MS = 213;  AUTOCOMPLETE_FAST_DEBOUNCE_MS = 214;  PROFILING_TELEMETRY_SAMPLE_RATE = 219;  STREAM_USER_SHELL_COMMANDS = 225;  API_SERVER_PROMPT_CACHE_REPLICAS = 307;  API_SERVER_ENABLE_MORE_LOGGING = 272;  COMMAND_INJECT_USER_MEMORIES = 233;  AUTOCOMPLETE_HIDDEN_ERROR_REGEX = 234;  DISABLE_IDE_COMPLETIONS_DEBOUNCE = 278;  ENABLE_QUICK_ACTIONS = 250;  QUICK_ACTIONS_WHITELIST_REGEX = 251;  CASCADE_NEW_MODELS_NUX = 259;  CASCADE_NEW_WAVE_2_MODELS_NUX = 270;  SUPERCOMPLETE_FAST_DEBOUNCE = 262;  SUPERCOMPLETE_REGULAR_DEBOUNCE = 263;  XML_TOOL_PARSING_MODELS = 268;  SUPERCOMPLETE_DONT_FILTER_MID_STREAMED = 269;  ANNOYANCE_MANAGER_MAX_NAVIGATION_RENDERS = 285;  ANNOYANCE_MANAGER_INLINE_PREVENTION_THRESHOLD_MS = 286;  ANNOYANCE_MANAGER_INLINE_PREVENTION_MAX_INTENTIONAL_REJECTIONS = 287;  ANNOYANCE_MANAGER_INLINE_PREVENTION_MAX_AUTO_REJECTIONS = 288;  USE_CUSTOM_CHARACTER_DIFF = 292;  FORCE_NON_OPTIMIZED_DIFF = 298;  CASCADE_WEB_APP_DEPLOYMENTS_ENABLED = 300;  CASCADE_RECIPES_AT_MENTION_VISIBILITY = 316;  IMPLICIT_USES_CLIPBOARD = 310;  DISABLE_SUPERCOMPLETE_PCW = 303;  BLOCK_TAB_ON_SHOWN_AUTOCOMPLETE = 304;  CASCADE_WEB_SEARCH_NUX = 311;  MODEL_NOTIFICATIONS = 319;  MODEL_SELECTOR_NUX_COPY = 320;  CASCADE_TOOL_CALL_PRICING_NUX = 322;  CASCADE_PLUGINS_TAB = 323;  WAVE_8_RULES_ENABLED = 324;  WAVE_8_KNOWLEDGE_ENABLED = 325;  CASCADE_ONBOARDING = 326;  CASCADE_ONBOARDING_REVERT = 327;  CASCADE_WINDSURF_BROWSER_TOOLS_ENABLED = 328;  CASCADE_MODEL_HEADER_WARNING = 329;  TEST_ONLY = 999;}
-enum ExperimentSource {  EXPERIMENT_SOURCE_UNSPECIFIED = 0;  EXPERIMENT_SOURCE_EXTENSION = 1;  EXPERIMENT_SOURCE_LANGUAGE_SERVER = 2;  EXPERIMENT_SOURCE_API_SERVER = 3;}
-enum CompletionSource {  COMPLETION_SOURCE_UNSPECIFIED = 0;  COMPLETION_SOURCE_TYPING_AS_SUGGESTED = 1;  COMPLETION_SOURCE_CACHE = 2;  COMPLETION_SOURCE_NETWORK = 3;}
-enum PromptElementKind {  PROMPT_ELEMENT_KIND_UNSPECIFIED = 0;  PROMPT_ELEMENT_KIND_FILE_MARKER = 2;  PROMPT_ELEMENT_KIND_OTHER_DOCUMENT = 4;  PROMPT_ELEMENT_KIND_BEFORE_CURSOR = 5;  PROMPT_ELEMENT_KIND_AFTER_CURSOR = 7;  PROMPT_ELEMENT_KIND_FIM = 8;  PROMPT_ELEMENT_KIND_SOT = 9;  PROMPT_ELEMENT_KIND_EOT = 10;  PROMPT_ELEMENT_KIND_CODE_CONTEXT_ITEM = 13;  PROMPT_ELEMENT_KIND_INSTRUCTION = 14;  PROMPT_ELEMENT_KIND_SELECTION = 15;  PROMPT_ELEMENT_KIND_TRAJECTORY_STEP = 16;  PROMPT_ELEMENT_KIND_ACTIVE_DOCUMENT = 17;  PROMPT_ELEMENT_KIND_CACHED_MESSAGE = 18;}
-enum CompletionType {  COMPLETION_TYPE_UNSPECIFIED = 0;  COMPLETION_TYPE_SINGLE = 1;  COMPLETION_TYPE_MULTI = 2;  COMPLETION_TYPE_INLINE_FIM = 3;  COMPLETION_TYPE_CASCADE = 4;}
-enum CodeSource {  CODE_SOURCE_UNSPECIFIED = 0;  CODE_SOURCE_BASE = 1;  CODE_SOURCE_CODEIUM = 2;  CODE_SOURCE_USER = 3;  CODE_SOURCE_USER_LARGE = 4;  CODE_SOURCE_UNKNOWN = 5;}
-enum ProviderSource {  PROVIDER_SOURCE_UNSPECIFIED = 0;  PROVIDER_SOURCE_AUTOCOMPLETE = 1;  PROVIDER_SOURCE_CHAT = 2;  PROVIDER_SOURCE_COMMAND_GENERATE = 4;  PROVIDER_SOURCE_COMMAND_EDIT = 5;  PROVIDER_SOURCE_SUPERCOMPLETE = 6;  PROVIDER_SOURCE_COMMAND_PLAN = 7;  PROVIDER_SOURCE_QUERY = 8;  PROVIDER_SOURCE_FAST_APPLY = 9;  PROVIDER_SOURCE_COMMAND_TERMINAL = 10;  PROVIDER_SOURCE_TAB_JUMP = 11;  PROVIDER_SOURCE_CASCADE = 12;}
-enum StatusLevel {  STATUS_LEVEL_UNSPECIFIED = 0;  STATUS_LEVEL_ERROR = 1;  STATUS_LEVEL_WARNING = 2;  STATUS_LEVEL_INFO = 3;  STATUS_LEVEL_DEBUG = 4;}
-enum ModelPricingType {  MODEL_PRICING_TYPE_UNSPECIFIED = 0;  MODEL_PRICING_TYPE_STATIC_CREDIT = 1;  MODEL_PRICING_TYPE_API = 2;  MODEL_PRICING_TYPE_BYOK = 3;}
-enum ModelProvider {  MODEL_PROVIDER_UNSPECIFIED = 0;  MODEL_PROVIDER_WINDSURF = 1;  MODEL_PROVIDER_OPENAI = 2;  MODEL_PROVIDER_ANTHROPIC = 3;  MODEL_PROVIDER_GOOGLE = 4;  MODEL_PROVIDER_XAI = 5;  MODEL_PROVIDER_DEEPSEEK = 6;  MODEL_PROVIDER_MOONSHOT = 7;  MODEL_PROVIDER_QWEN = 8;}
-enum TeamsTier {  TEAMS_TIER_UNSPECIFIED = 0;  TEAMS_TIER_TEAMS = 1;  TEAMS_TIER_PRO = 2;  TEAMS_TIER_TRIAL = 9;  TEAMS_TIER_ENTERPRISE_SAAS = 3;  TEAMS_TIER_HYBRID = 4;  TEAMS_TIER_ENTERPRISE_SELF_HOSTED = 5;  TEAMS_TIER_ENTERPRISE_SELF_SERVE = 10;  TEAMS_TIER_WAITLIST_PRO = 6;  TEAMS_TIER_TEAMS_ULTIMATE = 7;  TEAMS_TIER_PRO_ULTIMATE = 8;}
-enum EventType {  EVENT_TYPE_UNSPECIFIED = 0;  EVENT_TYPE_ENABLE_CODEIUM = 1;  EVENT_TYPE_DISABLE_CODEIUM = 2;  EVENT_TYPE_SHOW_PREVIOUS_COMPLETION = 3;  EVENT_TYPE_SHOW_NEXT_COMPLETION = 4;  EVENT_TYPE_COPILOT_STATUS = 5;  EVENT_TYPE_COMPLETION_SUPPRESSED = 6;  EVENT_TYPE_MEMORY_STATS = 8;  EVENT_TYPE_LOCAL_CONTEXT_RELEVANCE_CHECK = 9;  EVENT_TYPE_ACTIVE_EDITOR_CHANGED = 10;  EVENT_TYPE_SHOW_PREVIOUS_CORTEX_STEP = 11;  EVENT_TYPE_SHOW_NEXT_CORTEX_STEP = 12;  EVENT_TYPE_INDEXER_STATS = 13;}
-enum EmbedType {  EMBED_TYPE_UNSPECIFIED = 0;  EMBED_TYPE_RAW_SOURCE = 1;  EMBED_TYPE_DOCSTRING = 2;  EMBED_TYPE_FUNCTION = 3;  EMBED_TYPE_NODEPATH = 4;  EMBED_TYPE_DECLARATION = 5;  EMBED_TYPE_NAIVE_CHUNK = 6;  EMBED_TYPE_SIGNATURE = 7;}
-enum CommandRequestSource {  COMMAND_REQUEST_SOURCE_UNSPECIFIED = 0;  COMMAND_REQUEST_SOURCE_DEFAULT = 1;  COMMAND_REQUEST_SOURCE_FUNCTION_CODE_LENS = 2;  COMMAND_REQUEST_SOURCE_CLASS_CODE_LENS = 3;  COMMAND_REQUEST_SOURCE_RIGHT_CLICK_REFACTOR = 4;  COMMAND_REQUEST_SOURCE_SELECTION_HINT_CODE_LENS = 5;  COMMAND_REQUEST_SOURCE_LINE_HINT_CODE_LENS = 6;  COMMAND_REQUEST_SOURCE_PLAN = 7;  COMMAND_REQUEST_SOURCE_FOLLOWUP = 8;  COMMAND_REQUEST_SOURCE_PASTE_AND_TRANSLATE = 9;  COMMAND_REQUEST_SOURCE_SUPERCOMPLETE = 10;  COMMAND_REQUEST_SOURCE_FUNCTION_DOCSTRING = 11;  COMMAND_REQUEST_SOURCE_FAST_APPLY = 12;  COMMAND_REQUEST_SOURCE_TERMINAL = 13;  COMMAND_REQUEST_SOURCE_TAB_JUMP = 14;}
-enum SupercompleteTriggerCondition {  SUPERCOMPLETE_TRIGGER_CONDITION_UNSPECIFIED = 0;  SUPERCOMPLETE_TRIGGER_CONDITION_AUTOCOMPLETE_ACCEPT = 1;  SUPERCOMPLETE_TRIGGER_CONDITION_CURSOR_LINE_NAVIGATION = 2;  SUPERCOMPLETE_TRIGGER_CONDITION_TYPING = 3;  SUPERCOMPLETE_TRIGGER_CONDITION_FORCED = 4;  SUPERCOMPLETE_TRIGGER_CONDITION_TAB_JUMP_ACCEPT = 5;  SUPERCOMPLETE_TRIGGER_CONDITION_SUPERCOMPLETE_ACCEPT = 6;  SUPERCOMPLETE_TRIGGER_CONDITION_TAB_JUMP_PREDICTIVE = 7;  SUPERCOMPLETE_TRIGGER_CONDITION_AUTOCOMPLETE_PREDICTIVE = 8;  SUPERCOMPLETE_TRIGGER_CONDITION_SUPERCOMPLETE_PREDICTIVE = 9;  SUPERCOMPLETE_TRIGGER_CONDITION_TAB_JUMP_EDIT = 10;}
+enum ChatMessageSource {  CHAT_MESSAGE_SOURCE_UNSPECIFIED = 0;  CHAT_MESSAGE_SOURCE_USER = 1;  CHAT_MESSAGE_SOURCE_SYSTEM = 2;  CHAT_MESSAGE_SOURCE_UNKNOWN = 3;  CHAT_MESSAGE_SOURCE_TOOL = 4;  CHAT_MESSAGE_SOURCE_SYSTEM_PROMPT = 5;}
 enum ValidationStatus {  VALIDATION_STATUS_UNSPECIFIED = 0;  VALIDATION_STATUS_AVAILABLE = 1;  VALIDATION_STATUS_IN_USE = 2;  VALIDATION_STATUS_TAKEN = 3;  VALIDATION_STATUS_INVALID = 4;}
-enum ContextScopeType {  CONTEXT_SCOPE_TYPE_UNSPECIFIED = 0;  CONTEXT_SCOPE_TYPE_FILE = 1;  CONTEXT_SCOPE_TYPE_DIRECTORY = 2;  CONTEXT_SCOPE_TYPE_REPOSITORY = 3;  CONTEXT_SCOPE_TYPE_CODE_CONTEXT = 4;  CONTEXT_SCOPE_TYPE_CCI_WITH_SUBRANGE = 5;  CONTEXT_SCOPE_TYPE_REPOSITORY_PATH = 6;  CONTEXT_SCOPE_TYPE_SLACK = 7;  CONTEXT_SCOPE_TYPE_GITHUB = 8;  CONTEXT_SCOPE_TYPE_FILE_LINE_RANGE = 9;  CONTEXT_SCOPE_TYPE_TEXT_BLOCK = 10;  CONTEXT_SCOPE_TYPE_JIRA = 11;  CONTEXT_SCOPE_TYPE_GOOGLE_DRIVE = 12;  CONTEXT_SCOPE_TYPE_CONSOLE_LOG = 13;  CONTEXT_SCOPE_TYPE_DOM_ELEMENT = 14;  CONTEXT_SCOPE_TYPE_RECIPE = 15;  CONTEXT_SCOPE_TYPE_KNOWLEDGE = 16;  CONTEXT_SCOPE_TYPE_RULE = 17;  CONTEXT_SCOPE_TYPE_MCP_RESOURCE = 18;  CONTEXT_SCOPE_TYPE_BROWSER_PAGE = 19;  CONTEXT_SCOPE_TYPE_BROWSER_CODE_BLOCK = 20;  CONTEXT_SCOPE_TYPE_BROWSER_TEXT = 21;  CONTEXT_SCOPE_TYPE_CONVERSATION = 22;  CONTEXT_SCOPE_TYPE_USER_ACTIVITY = 23;  CONTEXT_SCOPE_TYPE_TERMINAL = 24;  CONTEXT_SCOPE_TYPE_GITHUB_PULL_REQUEST = 25;}
+enum ContextScopeType {  CONTEXT_SCOPE_TYPE_UNSPECIFIED = 0;  CONTEXT_SCOPE_TYPE_FILE = 1;  CONTEXT_SCOPE_TYPE_DIRECTORY = 2;  CONTEXT_SCOPE_TYPE_REPOSITORY = 3;  CONTEXT_SCOPE_TYPE_CODE_CONTEXT = 4;  CONTEXT_SCOPE_TYPE_CCI_WITH_SUBRANGE = 5;  CONTEXT_SCOPE_TYPE_REPOSITORY_PATH = 6;  CONTEXT_SCOPE_TYPE_SLACK = 7;  CONTEXT_SCOPE_TYPE_GITHUB = 8;  CONTEXT_SCOPE_TYPE_FILE_LINE_RANGE = 9;  CONTEXT_SCOPE_TYPE_TEXT_BLOCK = 10;  CONTEXT_SCOPE_TYPE_JIRA = 11;  CONTEXT_SCOPE_TYPE_GOOGLE_DRIVE = 12;  CONTEXT_SCOPE_TYPE_CONSOLE_LOG = 13;  CONTEXT_SCOPE_TYPE_DOM_ELEMENT = 14;  CONTEXT_SCOPE_TYPE_RECIPE = 15;  CONTEXT_SCOPE_TYPE_KNOWLEDGE = 16;  CONTEXT_SCOPE_TYPE_RULE = 17;  CONTEXT_SCOPE_TYPE_MCP_RESOURCE = 18;  CONTEXT_SCOPE_TYPE_BROWSER_PAGE = 19;  CONTEXT_SCOPE_TYPE_BROWSER_CODE_BLOCK = 20;  CONTEXT_SCOPE_TYPE_BROWSER_TEXT = 21;  CONTEXT_SCOPE_TYPE_CONVERSATION = 22;  CONTEXT_SCOPE_TYPE_USER_ACTIVITY = 23;  CONTEXT_SCOPE_TYPE_TERMINAL = 24;  CONTEXT_SCOPE_TYPE_GITHUB_PULL_REQUEST = 25;  CONTEXT_SCOPE_TYPE_CODE_MAP = 26;  CONTEXT_SCOPE_TYPE_MCP_PROMPT = 27;  CONTEXT_SCOPE_TYPE_SKILL = 28;  CONTEXT_SCOPE_TYPE_PLAN_FILE = 29;  CONTEXT_SCOPE_TYPE_GIT = 30;}
 enum ContextInclusionType {  CONTEXT_INCLUSION_TYPE_UNSPECIFIED = 0;  CONTEXT_INCLUSION_TYPE_INCLUDE = 1;  CONTEXT_INCLUSION_TYPE_EXCLUDE = 2;}
 enum DeepWikiModelType {  DEEP_WIKI_MODEL_TYPE_UNSPECIFIED = 0;  DEEP_WIKI_MODEL_TYPE_CAPACITY_FALLBACK = 1;  DEEP_WIKI_MODEL_TYPE_LITE_FREE = 2;  DEEP_WIKI_MODEL_TYPE_LITE_PAID = 3;  DEEP_WIKI_MODEL_TYPE_PREMIUM = 4;}
 enum ScmType {  SCM_TYPE_UNSPECIFIED = 0;  SCM_TYPE_GIT = 1;  SCM_TYPE_PERFORCE = 2;}
@@ -1129,22 +1220,20 @@ enum FontSize {  FONT_SIZE_UNSPECIFIED = 0;  FONT_SIZE_SMALL = 1;  FONT_SIZE_DEF
 enum RememberLastModelSelection {  REMEMBER_LAST_MODEL_SELECTION_UNSPECIFIED = 0;  REMEMBER_LAST_MODEL_SELECTION_ENABLED = 1;  REMEMBER_LAST_MODEL_SELECTION_DISABLED = 2;}
 enum AutocompleteSpeed {  AUTOCOMPLETE_SPEED_UNSPECIFIED = 0;  AUTOCOMPLETE_SPEED_SLOW = 1;  AUTOCOMPLETE_SPEED_DEFAULT = 2;  AUTOCOMPLETE_SPEED_FAST = 3;}
 enum CascadeNUXEvent {  CASCADE_NUX_EVENT_UNSPECIFIED = 0;  CASCADE_NUX_EVENT_DIFF_OVERVIEW = 1;  CASCADE_NUX_EVENT_WEB_SEARCH = 2;  CASCADE_NUX_EVENT_NEW_MODELS_WAVE2 = 3;  CASCADE_NUX_EVENT_TOOL_CALL = 4;  CASCADE_NUX_EVENT_MODEL_SELECTOR_NUX = 5;  CASCADE_NUX_EVENT_TOOL_CALL_PRICING_NUX = 6;  CASCADE_NUX_EVENT_WRITE_CHAT_MODE = 7;  CASCADE_NUX_EVENT_REVERT_STEP = 8;  CASCADE_NUX_EVENT_RULES = 9;  CASCADE_NUX_EVENT_WEB_MENTION = 10;  CASCADE_NUX_EVENT_BACKGROUND_CASCADE = 11;  CASCADE_NUX_EVENT_ANTHROPIC_API_PRICING = 12;  CASCADE_NUX_EVENT_PLAN_MODE = 13;  CASCADE_NUX_EVENT_OPEN_BROWSER_URL = 14;}
-enum ClaudeCodeMode {  CLAUDE_CODE_MODE_UNSPECIFIED = 0;  CLAUDE_CODE_MODE_DEFAULT = 1;  CLAUDE_CODE_MODE_ACCEPT_EDITS = 2;  CLAUDE_CODE_MODE_PLAN = 3;  CLAUDE_CODE_MODE_BYPASS_PERMISSIONS = 4;}
 enum UserNUXEvent {  USER_NUX_EVENT_UNSPECIFIED = 0;  USER_NUX_EVENT_DISMISS_WINDSURF_CROSS_SELL = 1;}
 enum TabToJump {  TAB_TO_JUMP_UNSPECIFIED = 0;  TAB_TO_JUMP_ENABLED = 1;  TAB_TO_JUMP_DISABLED = 2;}
 enum CascadeWebSearchTool {  CASCADE_WEB_SEARCH_TOOL_UNSPECIFIED = 0;  CASCADE_WEB_SEARCH_TOOL_ENABLED = 1;  CASCADE_WEB_SEARCH_TOOL_DISABLED = 2;}
 enum PlanMode {  PLAN_MODE_UNSPECIFIED = 0;  PLAN_MODE_ON = 1;  PLAN_MODE_OFF = 2;}
-enum CascadeRunExtensionCode {  CASCADE_RUN_EXTENSION_CODE_UNSPECIFIED = 0;  CASCADE_RUN_EXTENSION_CODE_ENABLED = 1;  CASCADE_RUN_EXTENSION_CODE_DISABLED = 2;  CASCADE_RUN_EXTENSION_CODE_ONLY = 3;}
 enum AutoContinueOnMaxGeneratorInvocations {  AUTO_CONTINUE_ON_MAX_GENERATOR_INVOCATIONS_UNSPECIFIED = 0;  AUTO_CONTINUE_ON_MAX_GENERATOR_INVOCATIONS_ENABLED = 1;  AUTO_CONTINUE_ON_MAX_GENERATOR_INVOCATIONS_DISABLED = 2;}
 enum AnnotationsConfig {  ANNOTATIONS_CONFIG_UNSPECIFIED = 0;  ANNOTATIONS_CONFIG_ENABLED = 1;  ANNOTATIONS_CONFIG_DISABLED = 2;}
 enum BrowserExperimentalFeaturesConfig {  BROWSER_EXPERIMENTAL_FEATURES_CONFIG_UNSPECIFIED = 0;  BROWSER_EXPERIMENTAL_FEATURES_CONFIG_ENABLED = 1;  BROWSER_EXPERIMENTAL_FEATURES_CONFIG_DISABLED = 2;}
 enum CommandPopupAutocomplete {  COMMAND_POPUP_AUTOCOMPLETE_UNSPECIFIED = 0;  COMMAND_POPUP_AUTOCOMPLETE_ENABLED = 1;  COMMAND_POPUP_AUTOCOMPLETE_DISABLED = 2;}
+enum CompletionMode {  COMPLETION_MODE_UNSPECIFIED = 0;  COMPLETION_MODE_SUPERCOMPLETE = 1;  COMPLETION_MODE_AUTOCOMPLETE = 2;  COMPLETION_MODE_OFF = 3;}
 enum UserTeamStatus {  USER_TEAM_STATUS_UNSPECIFIED = 0;  USER_TEAM_STATUS_PENDING = 1;  USER_TEAM_STATUS_APPROVED = 2;  USER_TEAM_STATUS_REJECTED = 3;}
 enum UserFeatures {  USER_FEATURES_UNSPECIFIED = 0;  USER_FEATURES_CORTEX = 1;  USER_FEATURES_CORTEX_TEST = 2;}
 enum TeamsFeatures {  TEAMS_FEATURES_UNSPECIFIED = 0;  TEAMS_FEATURES_SSO = 1;  TEAMS_FEATURES_ATTRIBUTION = 2;  TEAMS_FEATURES_PHI = 3;  TEAMS_FEATURES_CORTEX = 4;  TEAMS_FEATURES_OPENAI_DISABLED = 5;  TEAMS_FEATURES_REMOTE_INDEXING_DISABLED = 6;  TEAMS_FEATURES_API_KEY_ENABLED = 7;}
 enum Permission {  PERMISSION_UNSPECIFIED = 0;  PERMISSION_ATTRIBUTION_READ = 1;  PERMISSION_ANALYTICS_READ = 2;  PERMISSION_LICENSE_READ = 3;  PERMISSION_TEAM_USER_READ = 4;  PERMISSION_TEAM_USER_UPDATE = 5;  PERMISSION_TEAM_USER_DELETE = 6;  PERMISSION_TEAM_USER_INVITE = 17;  PERMISSION_INDEXING_READ = 7;  PERMISSION_INDEXING_CREATE = 8;  PERMISSION_INDEXING_UPDATE = 9;  PERMISSION_INDEXING_DELETE = 10;  PERMISSION_INDEXING_MANAGEMENT = 27;  PERMISSION_FINETUNING_READ = 19;  PERMISSION_FINETUNING_CREATE = 20;  PERMISSION_FINETUNING_UPDATE = 21;  PERMISSION_FINETUNING_DELETE = 22;  PERMISSION_SSO_READ = 11;  PERMISSION_SSO_WRITE = 12;  PERMISSION_SERVICE_KEY_READ = 13;  PERMISSION_SERVICE_KEY_CREATE = 14;  PERMISSION_SERVICE_KEY_UPDATE = 28;  PERMISSION_SERVICE_KEY_DELETE = 15;  PERMISSION_ROLE_READ = 23;  PERMISSION_ROLE_CREATE = 24;  PERMISSION_ROLE_UPDATE = 25;  PERMISSION_ROLE_DELETE = 26;  PERMISSION_BILLING_READ = 16;  PERMISSION_BILLING_WRITE = 18;  PERMISSION_EXTERNAL_CHAT_UPDATE = 29;  PERMISSION_TEAM_SETTINGS_READ = 30;  PERMISSION_TEAM_SETTINGS_UPDATE = 31;}
 enum TransactionStatus {  TRANSACTION_STATUS_UNSPECIFIED = 0;  TRANSACTION_STATUS_SUCCEEDED = 1;  TRANSACTION_STATUS_PROCESSING = 2;  TRANSACTION_STATUS_FAILED = 3;  TRANSACTION_STATUS_NO_ACTIVE = 4;}
+enum RefreshCustomizationType {  REFRESH_CUSTOMIZATION_TYPE_UNSPECIFIED = 0;  REFRESH_CUSTOMIZATION_TYPE_RULE = 1;  REFRESH_CUSTOMIZATION_TYPE_WORKFLOW = 2;  REFRESH_CUSTOMIZATION_TYPE_USER_MEMORY = 3;  REFRESH_CUSTOMIZATION_TYPE_SKILL = 4;  REFRESH_CUSTOMIZATION_TYPE_PLAN = 5;  REFRESH_CUSTOMIZATION_TYPE_MCP = 6;}
+enum TerminalShellCommandSource {  TERMINAL_SHELL_COMMAND_SOURCE_UNSPECIFIED = 0;  TERMINAL_SHELL_COMMAND_SOURCE_USER = 1;  TERMINAL_SHELL_COMMAND_SOURCE_CASCADE = 2;}
 enum ModelStatus {  MODEL_STATUS_UNSPECIFIED = 0;  MODEL_STATUS_INFO = 1;  MODEL_STATUS_WARNING = 2;}
-enum CascadeNUXLocation {  CASCADE_NUX_LOCATION_UNSPECIFIED = 0;  CASCADE_NUX_LOCATION_CASCADE_INPUT = 1;  CASCADE_NUX_LOCATION_MODEL_SELECTOR = 2;  CASCADE_NUX_LOCATION_RULES_TAB = 4;  CASCADE_NUX_LOCATION_REVERT_STEP = 6;  CASCADE_NUX_LOCATION_PLAN_MODE = 7;  CASCADE_NUX_LOCATION_WRITE_CHAT_MODE = 8;  CASCADE_NUX_LOCATION_TOOLBAR = 9;}
-enum CascadeNUXTrigger {  CASCADE_NUX_TRIGGER_UNSPECIFIED = 0;  CASCADE_NUX_TRIGGER_PRODUCED_CODE_DIFF = 1;  CASCADE_NUX_TRIGGER_OPEN_BROWSER_URL = 3;  CASCADE_NUX_TRIGGER_WEB_SEARCH = 4;}
-enum CascadeNUXIcon {  CASCADE_NUX_ICON_UNSPECIFIED = 0;  CASCADE_NUX_ICON_WEB_SEARCH = 1;  CASCADE_NUX_ICON_WINDSURF_BROWSER = 2;}

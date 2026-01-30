@@ -53,5 +53,6 @@ message MessageDiff {  repeated exa.reactive_component_pb.FieldDiff field_diffs 
 
 message StreamReactiveUpdatesResponse {  uint64 version = 1;
   exa.reactive_component_pb.MessageDiff diff = 2;
+  bytes full_state = 3;
 }
 

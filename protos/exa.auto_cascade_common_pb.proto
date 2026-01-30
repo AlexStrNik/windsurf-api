@@ -5,12 +5,6 @@ import "google/protobuf/duration.proto";
 import "google/protobuf/empty.proto";
 
 package exa.auto_cascade_common_pb;
-message GitRepoInfo {  string repo_name = 1;
-  string branch = 2;
-  string commit = 3;
-  string pr_url = 4;
-}
-
 message GithubPullRequestInfo {  string url = 1;
   string owner = 2;
   string repo = 3;
