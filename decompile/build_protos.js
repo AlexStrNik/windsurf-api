@@ -1,36 +1,166 @@
 const fs = require("fs");
 const path = require("path");
+const crypto = require("crypto")
 
-const protosBundlePath = path.join(__dirname, "workbench.desktop.main.protos.js");
-const workbenchBundlePath = path.join(__dirname, "workbench.desktop.main.js");
-const legacyBundlePath = path.join(__dirname, "chat.js");
+const ensureDirEmpty = (dir) => {
+  fs.rmSync(dir, { recursive: true, force: true });
+  fs.mkdirSync(dir, { recursive: true });
+};
 
-let bundlePath;
-if (fs.existsSync(protosBundlePath)) {
-  bundlePath = protosBundlePath;
-} else if (fs.existsSync(legacyBundlePath)) {
-  bundlePath = legacyBundlePath;
-} else if (fs.existsSync(workbenchBundlePath)) {
-  throw new Error(
-    [
-      "Missing decompile/workbench.desktop.main.protos.js.",
-      "Found decompile/workbench.desktop.main.js, but decompile_protos.js will not load it.",
-      "Run: pnpm exec node decompile/strip_bundle.js",
-      "Then: pnpm exec node decompile/decompile_protos.js",
-    ].join("\n")
+const safeCopyFile = (src, dst) => {
+  fs.mkdirSync(path.dirname(dst), { recursive: true });
+  fs.copyFileSync(src, dst);
+};
+
+const appendVersionMetadata = (versionFilePath, lines) => {
+  fs.mkdirSync(path.dirname(versionFilePath), { recursive: true });
+
+  let prefix = "";
+  if (fs.existsSync(versionFilePath)) {
+    const prev = fs.readFileSync(versionFilePath, "utf8");
+    if (prev.length > 0 && !prev.endsWith("\n")) {
+      prefix = "\n";
+    }
+  }
+
+  fs.appendFileSync(versionFilePath, prefix + lines.join("\n") + "\n", "utf8");
+};
+
+const normalizeVersionFile = (versionFilePath) => {
+  if (!fs.existsSync(versionFilePath)) {
+    return;
+  }
+
+  const raw = fs.readFileSync(versionFilePath, "utf8");
+  const lines = raw
+    .split("\n")
+    .map((l) => l.trimEnd())
+    .filter((l) => l.length > 0);
+
+  const keyed = lines.map((line, idx) => {
+    const eq = line.indexOf("=");
+    const key = eq === -1 ? line : line.slice(0, eq);
+    return { key, idx, line };
+  });
+
+  keyed.sort((a, b) => {
+    const c = a.key.localeCompare(b.key);
+    if (c !== 0) return c;
+    return a.idx - b.idx;
+  });
+
+  fs.writeFileSync(
+    versionFilePath,
+    keyed.map((x) => x.line).join("\n") + "\n",
+    "utf8"
   );
-} else {
-  throw new Error(
-    [
-      "Missing decompile/workbench.desktop.main.protos.js.",
-      "Expected one of:",
-      "- decompile/workbench.desktop.main.protos.js",
-      "- decompile/chat.js",
-    ].join("\n")
+};
+
+const WINDSURF_VERSION_PATH = "WINDSURF_VERSION";
+
+const windsurfVersionFromDir = (dir, inputName) => {
+  const versionFilePath = path.join(dir, WINDSURF_VERSION_PATH);
+  if (!fs.existsSync(versionFilePath)) {
+    const hash = crypto.createHash("sha256")
+      .update(fs.readFileSync(path.join(dir, inputName)))
+    return `${inputName}-${hash.digest("hex").slice(0, 8)}`;
+  }
+
+  const versionFileContents = fs.readFileSync(versionFilePath, "utf8");
+  const lines = versionFileContents.split("\n");
+  const versionLine = lines.find((line) => line.startsWith("WINDSURF_VERSION="));
+  if (!versionLine) {
+    throw new Error(`version file does not contain WINDSURF_VERSION: ${versionFilePath}`);
+  }
+  return versionLine.slice("WINDSURF_VERSION=".length).trim();
+};
+
+const findNewestDir = (dataDir, prefix) => {
+  if (!fs.existsSync(dataDir)) {
+    throw new Error(`data dir not found: ${dataDir}`);
+  }
+
+  const entries = fs
+    .readdirSync(dataDir)
+    .filter((name) => name.startsWith(prefix))
+    .map((name) => {
+      const fullPath = path.join(dataDir, name);
+      try {
+        const stat = fs.lstatSync(fullPath);
+        return { fullPath, isDir: stat.isDirectory(), mtimeMs: stat.mtimeMs };
+      } catch {
+        return { fullPath, isDir: false, mtimeMs: 0 };
+      }
+    })
+    .filter(({ isDir }) => isDir)
+    .sort((a, b) => b.mtimeMs - a.mtimeMs);
+
+  if (entries.length === 0) {
+    throw new Error(`no ${prefix} directories found under: ${dataDir}`);
+  }
+
+  return entries[0].fullPath;
+};
+
+const syncGeneratedToCanonical = (generatedDir, canonicalDir) => {
+  ensureDirEmpty(canonicalDir);
+
+  for (const name of fs.readdirSync(generatedDir)) {
+    if (!name.endsWith(".proto") && name !== WINDSURF_VERSION_PATH) {
+      continue;
+    }
+    safeCopyFile(path.join(generatedDir, name), path.join(canonicalDir, name));
+  }
+};
+
+const dataDir = path.join(__dirname, "data");
+
+const isJsInput = process.argv.length > 2 && process.argv[2].endsWith(".js")
+
+const prepareDir = process.argv.length > 2
+  ? (isJsInput ? path.dirname(process.argv[2]) : path.resolve(process.argv[2]))
+  : findNewestDir(dataDir, "prepare_decompile-");
+
+if (!fs.existsSync(prepareDir) || !fs.lstatSync(prepareDir).isDirectory()) {
+  throw new Error(`prepare dir not found: ${prepareDir}`);
+}
+
+const inputName = isJsInput
+  ? path.basename(process.argv[2])
+  : "workbench.desktop.main.protos.js";
+
+
+
+
+const windsurfVersion = windsurfVersionFromDir(prepareDir, inputName);
+
+const buildDir = process.argv.length > 3
+    ? path.resolve(process.argv[3])
+    : path.join(__dirname, "data", `build_protos-${windsurfVersion}`);
+
+ensureDirEmpty(buildDir);
+
+const hasVersionMeta = fs.existsSync(path.join(prepareDir, WINDSURF_VERSION_PATH));
+if(hasVersionMeta){
+  safeCopyFile(
+    path.join(prepareDir, WINDSURF_VERSION_PATH),
+    path.join(buildDir, WINDSURF_VERSION_PATH)
+  );
+}else{
+  fs.writeFileSync(
+    path.join(buildDir, WINDSURF_VERSION_PATH),
+    `WINDSURF_VERSION=${windsurfVersion}\n`,
+    "utf8"
   );
 }
 
-const protos = require(bundlePath);
+const inputPath = path.join(prepareDir, inputName);
+
+if (!fs.existsSync(inputPath) || !fs.lstatSync(inputPath).isFile()) {
+  throw new Error(`input file not found: ${inputPath}`);
+}
+
+const protos = require(inputPath);
 
 const enums = {};
 const services = {};
@@ -279,5 +409,38 @@ for (const namespace of allNamespaces) {
     }
   }
 
-  fs.writeFileSync(`protos/${namespace}.proto`, namespaceContent);
+  fs.writeFileSync(path.join(buildDir, `${namespace}.proto`), namespaceContent);
 }
+
+const repoDir = path.join(__dirname, "..");
+const canonicalProtosDir = path.join(repoDir, "protos");
+
+appendVersionMetadata(path.join(buildDir, WINDSURF_VERSION_PATH), [
+  `BUILD_INPUT=${path.relative(repoDir, inputPath)}`, // relative to repo root
+  `BUILD_OUTPUT=${path.relative(repoDir, buildDir)}`, // relative to repo root
+]);
+normalizeVersionFile(path.join(buildDir, WINDSURF_VERSION_PATH));
+
+syncGeneratedToCanonical(buildDir, canonicalProtosDir);
+
+const messagesCount = seenTypes.size;
+const enumsCount = Object.keys(enums).length;
+const servicesCount = Object.values(services).reduce(
+  (acc, defs) => acc + (Array.isArray(defs) ? defs.length : 0),
+  0
+);
+
+console.log(
+  JSON.stringify(
+    {
+      version: windsurfVersion,
+      inputPath,
+      outputPath: buildDir,
+      messages: messagesCount,
+      enums: enumsCount,
+      services: servicesCount,
+    },
+    null,
+    2
+  )
+);

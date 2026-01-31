@@ -49,6 +49,9 @@
     "compile": "tsc -p ./",
     "bundle": "esbuild src/extension.ts --bundle --outfile=out/extension.js --external:vscode --format=cjs --platform=node",
     "watch": "tsc -watch -p ./",
+    "decompile:extract": "node decompile/extract_sources.js",
+    "decompile:prepare": "node decompile/prepare_decompile.js",
+    "decompile:build": "node decompile/build_protos.js",
     "pretest": "pnpm run compile && pnpm run lint",
     "lint": "eslint src",
     "test": "vscode-test",
@@ -66,6 +69,7 @@
     "@vscode/test-electron": "^2.5.2",
     "esbuild": "^0.24.2",
     "eslint": "^9.25.1",
+    "prettier": "^3.5.1",
     "typescript": "^5.8.3"
   },
   "dependencies": {
