@@ -31,6 +31,7 @@ message Metadata {  string ide_name = 1;
   string plan_name = 26;
   string id = 27;
   string impersonate_tier = 29;
+  repeated exa.codeium_common_pb.DisplayOption supported_model_displays = 30;
 }
 
 message DocumentPosition {  uint64 row = 1;
@@ -238,7 +239,7 @@ message ErrorTrace {  string error_id = 1;
   bool recovered = 4;
 }
 
-message Status {  exa.codeium_common_pb.StatusLevel level = 1;
+message IdeStatus {  exa.codeium_common_pb.StatusLevel level = 1;
   string message = 2;
 }
 
@@ -282,6 +283,10 @@ message ModelFeatures {  bool supports_context_tokens = 2;
   bool supports_rejection_context = 26;
 }
 
+message ArenaConfig {  exa.codeium_common_pb.ArenaTier arena_tier = 1;
+  float tokens_per_second = 2;
+}
+
 message ModelInfo {  exa.codeium_common_pb.Model model_id = 1;
   string model_uid = 17;
   bool is_internal = 2;
@@ -299,8 +304,9 @@ message ModelInfo {  exa.codeium_common_pb.Model model_id = 1;
   exa.codeium_common_pb.PromptTemplaterType prompt_templater_type = 14;
   exa.codeium_common_pb.ToolFormatterType tool_formatter_type = 15;
   string inference_server_url = 18;
-  exa.codeium_common_pb.ArenaTier arena_tier = 19;
   repeated string harness_uids = 20;
+  exa.codeium_common_pb.ArenaConfig arena_config = 21;
+  exa.codeium_common_pb.DisplayOption display_option = 22;
 }
 
 message ClientModelConfig {  string label = 1;
@@ -908,11 +914,21 @@ message TeamConfig {  string team_id = 1;
   bool cascade_web_search_enabled = 38;
   repeated string terminal_allow_list = 39;
   repeated string terminal_deny_list = 40;
+  repeated string cli_permissions_allow = 41;
+  repeated string cli_permissions_deny = 42;
+  repeated string cli_permissions_ask = 43;
+  string default_model_uid = 44;
+  bool allow_arena_mode = 45;
 }
 
 message TeamsFeaturesMetadata {  bool is_active = 1;
   string stripe_subscription_id = 2;
   bool has_access = 3;
+}
+
+message DevinPlanInfo {  bool can_use_cascade = 1;
+  bool can_use_cli = 2;
+  bool is_admin = 3;
 }
 
 message PlanInfo {  exa.codeium_common_pb.TeamsTier teams_tier = 1;
@@ -947,6 +963,7 @@ message PlanInfo {  exa.codeium_common_pb.TeamsTier teams_tier = 1;
   bool can_allow_cascade_in_background = 29;
   map<int32, exa.codeium_common_pb.TeamsFeaturesMetadata> default_team_features = 30;
   bool browser_enabled = 31;
+  exa.codeium_common_pb.DevinPlanInfo devin_info = 33;
 }
 
 message CascadeNUXState {  exa.codeium_common_pb.CascadeNUXEvent event = 1;
@@ -1040,6 +1057,8 @@ message UserSettings {  bool open_most_recent_chat_conversation = 1;
   repeated string cascade_removed_default_web_origins = 89;
   exa.codeium_common_pb.CascadeWebRequestsAutoExecution cascade_web_requests_auto_execution_policy = 90;
   repeated string last_specific_arena_model_uids = 93;
+  bool arena_always_open_fullscreen = 94;
+  bool last_arena_mode_enabled = 95;
 }
 
 message LanguageServerDiagnostics {  repeated string logs = 1;
@@ -1069,6 +1088,8 @@ message PlanStatus {  exa.codeium_common_pb.PlanInfo plan_info = 1;
 message CascadeModelConfigData {  repeated exa.codeium_common_pb.ClientModelConfig client_model_configs = 1;
   repeated exa.codeium_common_pb.ClientModelSort client_model_sorts = 2;
   exa.codeium_common_pb.DefaultOverrideModelConfig default_override_model_config = 3;
+  float arena_mode_cost_fast = 4;
+  float arena_mode_cost_smart = 5;
 }
 
 message UserStatus {  bool pro = 1;
@@ -1152,6 +1173,10 @@ message TeamOrganizationalControls {  string team_id = 1;
   repeated string extension_model_labels = 6;
   repeated exa.codeium_common_pb.APIProvider allowed_api_providers = 8;
   repeated string cli_model_labels = 9;
+  repeated exa.codeium_common_pb.ModelProvider allowed_model_providers = 10;
+  repeated string cascade_model_uids = 11;
+  repeated string command_model_uids = 12;
+  repeated string cli_model_uids = 13;
 }
 
 message GRPCStatus {  int32 code = 1;
@@ -1168,6 +1193,7 @@ message LifeguardConfig {  map<string, exa.codeium_common_pb.LifeguardModeConfig
 }
 
 enum AuthSource {  AUTH_SOURCE_CODEIUM = 0;  AUTH_SOURCE_DEEPNOTE = 1;  AUTH_SOURCE_CODESANDBOX = 2;  AUTH_SOURCE_STACKBLITZ = 3;  AUTH_SOURCE_VALTOWN = 4;  AUTH_SOURCE_HEX = 5;  AUTH_SOURCE_ZAPIER = 6;  AUTH_SOURCE_SUPERBLOCKS = 7;  AUTH_SOURCE_EMBARCADERO = 8;}
+enum DisplayOption {  DISPLAY_OPTION_UNSPECIFIED = 0;  DISPLAY_OPTION_ARENA = 1;}
 enum Language {  LANGUAGE_UNSPECIFIED = 0;  LANGUAGE_C = 1;  LANGUAGE_CLOJURE = 2;  LANGUAGE_COFFEESCRIPT = 3;  LANGUAGE_CPP = 4;  LANGUAGE_CSHARP = 5;  LANGUAGE_CSS = 6;  LANGUAGE_CUDACPP = 7;  LANGUAGE_DOCKERFILE = 8;  LANGUAGE_GO = 9;  LANGUAGE_GROOVY = 10;  LANGUAGE_HANDLEBARS = 11;  LANGUAGE_HASKELL = 12;  LANGUAGE_HCL = 13;  LANGUAGE_HTML = 14;  LANGUAGE_INI = 15;  LANGUAGE_JAVA = 16;  LANGUAGE_JAVASCRIPT = 17;  LANGUAGE_JSON = 18;  LANGUAGE_JULIA = 19;  LANGUAGE_KOTLIN = 20;  LANGUAGE_LATEX = 21;  LANGUAGE_LESS = 22;  LANGUAGE_LUA = 23;  LANGUAGE_MAKEFILE = 24;  LANGUAGE_MARKDOWN = 25;  LANGUAGE_OBJECTIVEC = 26;  LANGUAGE_OBJECTIVECPP = 27;  LANGUAGE_PERL = 28;  LANGUAGE_PHP = 29;  LANGUAGE_PLAINTEXT = 30;  LANGUAGE_PROTOBUF = 31;  LANGUAGE_PBTXT = 32;  LANGUAGE_PYTHON = 33;  LANGUAGE_R = 34;  LANGUAGE_RUBY = 35;  LANGUAGE_RUST = 36;  LANGUAGE_SASS = 37;  LANGUAGE_SCALA = 38;  LANGUAGE_SCSS = 39;  LANGUAGE_SHELL = 40;  LANGUAGE_SQL = 41;  LANGUAGE_STARLARK = 42;  LANGUAGE_SWIFT = 43;  LANGUAGE_TSX = 44;  LANGUAGE_TYPESCRIPT = 45;  LANGUAGE_VISUALBASIC = 46;  LANGUAGE_VUE = 47;  LANGUAGE_XML = 48;  LANGUAGE_XSL = 49;  LANGUAGE_YAML = 50;  LANGUAGE_SVELTE = 51;  LANGUAGE_TOML = 52;  LANGUAGE_DART = 53;  LANGUAGE_RST = 54;  LANGUAGE_OCAML = 55;  LANGUAGE_CMAKE = 56;  LANGUAGE_PASCAL = 57;  LANGUAGE_ELIXIR = 58;  LANGUAGE_FSHARP = 59;  LANGUAGE_LISP = 60;  LANGUAGE_MATLAB = 61;  LANGUAGE_POWERSHELL = 62;  LANGUAGE_SOLIDITY = 63;  LANGUAGE_ADA = 64;  LANGUAGE_OCAML_INTERFACE = 65;  LANGUAGE_TREE_SITTER_QUERY = 66;  LANGUAGE_APL = 67;  LANGUAGE_ASSEMBLY = 68;  LANGUAGE_COBOL = 69;  LANGUAGE_CRYSTAL = 70;  LANGUAGE_EMACS_LISP = 71;  LANGUAGE_ERLANG = 72;  LANGUAGE_FORTRAN = 73;  LANGUAGE_FREEFORM = 74;  LANGUAGE_GRADLE = 75;  LANGUAGE_HACK = 76;  LANGUAGE_MAVEN = 77;  LANGUAGE_M68KASSEMBLY = 78;  LANGUAGE_SAS = 79;  LANGUAGE_UNIXASSEMBLY = 80;  LANGUAGE_VBA = 81;  LANGUAGE_VIMSCRIPT = 82;  LANGUAGE_WEBASSEMBLY = 83;  LANGUAGE_BLADE = 84;  LANGUAGE_ASTRO = 85;  LANGUAGE_MUMPS = 86;  LANGUAGE_GDSCRIPT = 87;  LANGUAGE_NIM = 88;  LANGUAGE_PROLOG = 89;  LANGUAGE_MARKDOWN_INLINE = 90;  LANGUAGE_APEX = 91;  LANGUAGE_JUPYTER_NOTEBOOK = 92;}
 enum StopReason {  STOP_REASON_UNSPECIFIED = 0;  STOP_REASON_INCOMPLETE = 1;  STOP_REASON_STOP_PATTERN = 2;  STOP_REASON_MAX_TOKENS = 3;  STOP_REASON_MIN_LOG_PROB = 4;  STOP_REASON_MAX_NEWLINES = 5;  STOP_REASON_EXIT_SCOPE = 6;  STOP_REASON_NONFINITE_LOGIT_OR_PROB = 7;  STOP_REASON_FIRST_NON_WHITESPACE_LINE = 8;  STOP_REASON_PARTIAL = 9;  STOP_REASON_FUNCTION_CALL = 10;  STOP_REASON_CONTENT_FILTER = 11;  STOP_REASON_NON_INSERTION = 12;  STOP_REASON_ERROR = 13;}
 enum FilterReason {  FILTER_REASON_NONE = 0;  FILTER_REASON_INCOMPLETE = 1;  FILTER_REASON_EMPTY = 2;  FILTER_REASON_REPETITIVE = 3;  FILTER_REASON_DUPLICATE = 4;  FILTER_REASON_LONG_LINE = 5;  FILTER_REASON_COMPLETIONS_CUTOFF = 6;  FILTER_REASON_ATTRIBUTION = 7;  FILTER_REASON_NON_MATCHING = 8;  FILTER_REASON_NON_INSERTION = 9;}

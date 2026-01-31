@@ -124,7 +124,7 @@ message HeartbeatResponse {  google.protobuf.Timestamp last_extension_heartbeat 
 message GetStatusRequest {  exa.codeium_common_pb.Metadata metadata = 1;
 }
 
-message GetStatusResponse {  exa.codeium_common_pb.Status status = 1;
+message GetStatusResponse {  exa.codeium_common_pb.IdeStatus status = 1;
   bool show_review_prompt = 2;
 }
 
@@ -460,6 +460,7 @@ message RefreshContextForIdeActionRequest {  exa.codeium_common_pb.Metadata meta
   bool blocking = 4;
   exa.codeium_common_pb.ExperimentConfig experiment_config = 9;
   exa.language_server_pb.IdeAction ide_action = 10;
+  repeated string recently_opened_uris = 11;
 }
 
 message RefreshContextForIdeActionResponse {}
@@ -969,6 +970,16 @@ message ResolveWorktreeChangesRequest {  string cascade_id = 1;
 }
 
 message ResolveWorktreeChangesResponse {  bool had_conflicts = 1;
+  repeated string conflicting_files = 2;
+}
+
+message UndoWorktreeMergeRequest {  string cascade_id = 1;
+  bool force_overwrite = 2;
+  bool fail_on_conflicts = 3;
+}
+
+message UndoWorktreeMergeResponse {  bool had_conflicts = 1;
+  repeated string conflicting_files = 2;
 }
 
 message DeleteCascadeTrajectoryRequest {  string cascade_id = 1;
@@ -1226,7 +1237,7 @@ message CreateTrajectoryShareRequest {  exa.codeium_common_pb.Metadata metadata 
   string cascade_id = 4;
 }
 
-message CreateTrajectoryShareResponse {  string url = 1;
+message CreateTrajectoryShareResponse {  string share_id = 2;
 }
 
 message GetKnowledgeBaseItemsForTeamRequest {  exa.codeium_common_pb.Metadata metadata = 1;
@@ -1606,6 +1617,7 @@ service LanguageServerService {
   rpc AcknowledgeCascadeCodeEdit(exa.language_server_pb.AcknowledgeCascadeCodeEditRequest) returns (exa.language_server_pb.AcknowledgeCascadeCodeEditResponse);
   rpc GetCodeValidationStates(exa.language_server_pb.GetCodeValidationStatesRequest) returns (exa.language_server_pb.GetCodeValidationStatesResponse);
   rpc ResolveWorktreeChanges(exa.language_server_pb.ResolveWorktreeChangesRequest) returns (exa.language_server_pb.ResolveWorktreeChangesResponse);
+  rpc UndoWorktreeMerge(exa.language_server_pb.UndoWorktreeMergeRequest) returns (exa.language_server_pb.UndoWorktreeMergeResponse);
   rpc DeleteCascadeTrajectory(exa.language_server_pb.DeleteCascadeTrajectoryRequest) returns (exa.language_server_pb.DeleteCascadeTrajectoryResponse);
   rpc RenameCascadeTrajectory(exa.language_server_pb.RenameCascadeTrajectoryRequest) returns (exa.language_server_pb.RenameCascadeTrajectoryResponse);
   rpc InitializeCascadePanelState(exa.language_server_pb.InitializeCascadePanelStateRequest) returns (exa.language_server_pb.InitializeCascadePanelStateResponse);

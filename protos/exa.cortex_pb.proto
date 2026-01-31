@@ -398,6 +398,7 @@ message CortexStepPlannerResponse {  string response = 1;
   string thinking_id = 10;
   bytes gemini_thought_signature = 11;
   string signature_type = 12;
+  google.protobuf.Duration thinking_duration = 13;
 }
 
 message CortexStepFileBreakdown {  string absolute_path = 1;
@@ -593,6 +594,7 @@ message CortexMemory {  string memory_id = 1;
   exa.cortex_pb.CortexMemorySource source = 3;
   exa.cortex_pb.CortexMemoryScope scope = 4;
   exa.cortex_pb.CortexMemoryText text_memory = 5;
+  string parse_error = 7;
 }
 
 message CortexStepMemory {  string memory_id = 1;
@@ -1089,6 +1091,7 @@ message HookCondition {  repeated exa.cortex_pb.HookAgentAction agent_actions = 
 
 message CascadeHook {  exa.cortex_pb.HookExecutionSpec hook_spec = 5;
   exa.cortex_pb.HookCondition condition = 6;
+  repeated string workspace_dirs = 7;
 }
 
 message CascadeConfig {  exa.cortex_pb.CascadePlannerConfig planner_config = 1;
@@ -1100,6 +1103,7 @@ message CascadeConfig {  exa.cortex_pb.CascadePlannerConfig planner_config = 1;
   bool apply_model_default_override = 6;
   exa.cortex_pb.ParallelRolloutConfig parallel_rollout_config = 8;
   repeated exa.cortex_pb.CascadeHook hooks = 9;
+  string override_harness_uid = 10;
 }
 
 message CustomToolSpec {  string recipe_id = 1;
@@ -1732,7 +1736,16 @@ message QueuedMessage {  string queue_id = 1;
 }
 
 message ArenaModeInfo {  bool is_random_mode = 1;
-  exa.codeium_common_pb.ArenaTier arena_tier = 2;
+  string agent_name = 3;
+  string arena_assignment_jwt = 4;
+  string arena_model_uid = 5;
+  string harness_uid = 6;
+  string assigned_model_uid = 7;
+}
+
+message WorktreeMergeSnapshot {  map<string, string> file_states_before_merge = 1;
+  repeated string added_files = 2;
+  map<string, string> file_states_after_merge = 3;
 }
 
 message CortexTrajectory {  string trajectory_id = 1;
@@ -1751,8 +1764,10 @@ message CortexTrajectory {  string trajectory_id = 1;
   string arena_id = 16;
   repeated exa.cortex_pb.QueuedMessage message_queue = 17;
   string git_worktree_path = 18;
+  repeated string git_worktree_paths = 22;
   exa.cortex_pb.ArenaModeInfo arena_mode_info = 20;
   exa.codeium_common_pb.ConversationalPlannerMode conversational_mode = 21;
+  repeated exa.cortex_pb.WorktreeMergeSnapshot worktree_merges = 23;
 }
 
 message TrajectoryScope {  string workspace_uri = 1;
@@ -1815,6 +1830,7 @@ message CascadeTrajectorySummary {  string summary = 1;
   bool hidden = 19;
   uint32 queue_size = 20;
   string git_worktree_path = 21;
+  repeated string git_worktree_paths = 28;
   exa.cortex_pb.CortexTrajectoryType trajectory_type = 22;
   exa.cortex_pb.CortexTrajectorySource trajectory_source = 23;
   exa.codeium_common_pb.Model last_generator_model_deprecated = 24;
@@ -1908,6 +1924,8 @@ message WorkflowSpec {  string path = 1;
   exa.cortex_pb.CortexMemoryScope scope = 7;
   string base_dir = 8;
   bool is_overridden = 10;
+  string parse_error = 11;
+  string uri = 12;
 }
 
 message CortexSkill {  string name = 1;
@@ -1917,6 +1935,7 @@ message CortexSkill {  string name = 1;
   string base_dir = 5;
   string content = 6;
   bool is_global = 7;
+  string parse_error = 8;
 }
 
 enum CortexTrajectoryType {  CORTEX_TRAJECTORY_TYPE_UNSPECIFIED = 0;  CORTEX_TRAJECTORY_TYPE_USER_MAINLINE = 1;  CORTEX_TRAJECTORY_TYPE_USER_GRANULAR = 2;  CORTEX_TRAJECTORY_TYPE_SUPERCOMPLETE = 3;  CORTEX_TRAJECTORY_TYPE_CASCADE = 4;  CORTEX_TRAJECTORY_TYPE_BACKGROUND_RESEARCH = 5;  CORTEX_TRAJECTORY_TYPE_CHECKPOINT = 6;  CORTEX_TRAJECTORY_TYPE_RETRIEVE_MEMORY = 7;  CORTEX_TRAJECTORY_TYPE_CUSTOM_TOOL = 8;  CORTEX_TRAJECTORY_TYPE_AUTO_CASCADE = 9;  CORTEX_TRAJECTORY_TYPE_AUTO_CASCADE_MANAGER = 10;  CORTEX_TRAJECTORY_TYPE_APPLIER = 11;  CORTEX_TRAJECTORY_TYPE_TOOL_CALL_PROPOSAL = 12;  CORTEX_TRAJECTORY_TYPE_TRAJECTORY_CHOICE = 13;  CORTEX_TRAJECTORY_TYPE_LLM_JUDGE = 14;  CORTEX_TRAJECTORY_TYPE_ARTIFACT_SUMMARY = 19;  CORTEX_TRAJECTORY_TYPE_PASSIVE_CODER = 15;  CORTEX_TRAJECTORY_TYPE_INTERACTIVE_CASCADE = 17;  CORTEX_TRAJECTORY_TYPE_BRAIN_UPDATE = 16;}
