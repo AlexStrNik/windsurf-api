@@ -1,12 +1,145 @@
+const crypto = require("crypto");
+const { execFileSync } = require("child_process");
 const fs = require("fs");
 const path = require("path");
 
-const inputPath =
-  process.argv[2] ?? path.join(__dirname, "workbench.desktop.main.js");
-const outputPath =
-  process.argv[3] ?? path.join(__dirname, "workbench.desktop.main.protos.js");
+const ensureDirEmpty = (dir) => {
+  fs.rmSync(dir, { recursive: true, force: true });
+  fs.mkdirSync(dir, { recursive: true });
+};
 
-const source = fs.readFileSync(inputPath, "utf8");
+const safeCopyFile = (src, dst) => {
+  fs.mkdirSync(path.dirname(dst), { recursive: true });
+  fs.copyFileSync(src, dst);
+};
+
+const prettierBinPath = () => {
+  try {
+    return require.resolve("prettier/bin/prettier.cjs");
+  } catch {}
+  try {
+    return require.resolve("prettier/bin-prettier.js");
+  } catch {}
+  return null;
+};
+
+const prettierWrite = (filePath) => {
+  const bin = prettierBinPath();
+  if (!bin) {
+    throw new Error("prettier not found. Please install dependencies (pnpm install) before running prepare_decompile.");
+  }
+
+  execFileSync(process.execPath, [bin, "--write", filePath], {
+    stdio: "inherit",
+  });
+};
+
+const appendVersionMetadata = (versionFilePath, lines) => {
+  fs.mkdirSync(path.dirname(versionFilePath), { recursive: true });
+
+  let prefix = "";
+  if (fs.existsSync(versionFilePath)) {
+    const prev = fs.readFileSync(versionFilePath, "utf8");
+    if (prev.length > 0 && !prev.endsWith("\n")) {
+      prefix = "\n";
+    }
+  }
+
+  fs.appendFileSync(versionFilePath, prefix + lines.join("\n") + "\n", "utf8");
+};
+
+const WINDSURF_VERSION_PATH = "WINDSURF_VERSION";
+
+const windsurfVersionFromDir = (dir) => {
+  const versionFilePath = path.join(dir, WINDSURF_VERSION_PATH);
+  if (!fs.existsSync(versionFilePath)) {
+    throw new Error(`version file not found: ${versionFilePath}`);
+  }
+
+  const versionFileContents = fs.readFileSync(versionFilePath, "utf8");
+
+  // prefix WINDSURF_VERSION= with the version
+  const lines = versionFileContents.split("\n");
+  const versionLine = lines.find((line) => line.startsWith("WINDSURF_VERSION="));
+  if (!versionLine) {
+    throw new Error(`version file does not contain WINDSURF_VERSION: ${versionFilePath}`);
+  }
+  return versionLine.slice("WINDSURF_VERSION=".length).trim();
+}
+
+const   findNewestDir = (dataDir, prefix) => {
+  if (!fs.existsSync(dataDir)) {
+    throw new Error(`data dir not found: ${dataDir}`);
+  }
+
+  const entries = fs
+    .readdirSync(dataDir)
+    .filter((name) => name.startsWith(prefix))
+    .map((name) => {
+      try {
+        const fullPath = path.join(dataDir, name);
+        const stat = fs.lstatSync(fullPath);
+        return { name, fullPath, isDir: stat.isDirectory(), mtimeMs: stat.mtimeMs };
+      } catch {
+        return { name, fullPath: null, isDir: false };
+      }
+    })
+    .filter(({ isDir }) => isDir)
+    .sort((a, b) => b.mtimeMs - a.mtimeMs);
+
+  if (entries.length === 0) {
+    throw new Error(`no ${prefix} directories found under: ${dataDir}`);
+  }
+
+  return entries[0].fullPath;
+};
+
+const workbenchDesktopMainJsPath = path.join("Contents", "Resources", "app", "out", "vs", "workbench", "workbench.desktop.main.js");
+const protosPath = "workbench.desktop.main.protos.js";
+
+// input directory
+const extractDir = (process.argv.length > 2 ?
+  path.resolve(process.argv[2]) :
+  findNewestDir(path.join(__dirname, "data"), "extract_sources-"));
+
+console.log(`extract dir: ${extractDir}`);
+
+if (!fs.existsSync(extractDir) || !fs.lstatSync(extractDir).isDirectory()) {
+  throw new Error(`extract dir not found: ${extractDir}`);
+}
+
+// output directory
+const windsurfVersion = windsurfVersionFromDir(extractDir);
+
+const outDir = (process.argv.length > 3 ?
+  path.resolve(process.argv[3]) :
+  path.join(__dirname, "data", `prepare_decompile-${windsurfVersion}`));
+
+ensureDirEmpty(outDir);
+
+safeCopyFile(
+  path.join(extractDir, WINDSURF_VERSION_PATH),
+  path.join(outDir, WINDSURF_VERSION_PATH)
+);
+
+if(!fs.existsSync(path.join(extractDir, workbenchDesktopMainJsPath))) {
+  throw new Error(`workbench.desktop.main.js not found in: ${path.join(extractDir, workbenchDesktopMainJsPath)}`);
+}
+
+const extractWorkbenchPath = path.join(extractDir, workbenchDesktopMainJsPath);
+const prepareWorkbenchPath = path.join(outDir, workbenchDesktopMainJsPath);
+
+safeCopyFile(extractWorkbenchPath, prepareWorkbenchPath);
+prettierWrite(prepareWorkbenchPath);
+
+const extractBuf = fs.readFileSync(extractWorkbenchPath);
+const prepareBuf = fs.readFileSync(prepareWorkbenchPath);
+const source = prepareBuf.toString("utf8");
+const inputMeta = {
+  path: extractWorkbenchPath,
+  size: extractBuf.length,
+  sha256: crypto.createHash("sha256").update(extractBuf).digest("hex"),
+};
 
 const isIdentChar = (ch) => /[A-Za-z0-9_$]/.test(ch);
 
@@ -560,13 +693,25 @@ out.push("");
 out.push(`module.exports = { ${serviceExportNames.join(", ")} };`);
 out.push("");
 
-fs.writeFileSync(outputPath, out.join("\n"));
+fs.writeFileSync(path.join(outDir, protosPath), out.join("\n"));
+
+
+// write output metadata
+appendVersionMetadata(path.join(outDir, "WINDSURF_VERSION"), [
+  `PREPARED_FILE=${path.basename(inputMeta.path)}`,
+  `PREPARED_FILE_SHA256=${inputMeta.sha256}`,
+  `PREPARED_FILE_SIZE=${inputMeta.size}`,
+  `MESSAGES=${extracted.messageAssignments.length}`,
+  `ENUMS=${extracted.enumCalls.length}`,
+  `SERVICES=${extracted.serviceAssignments.length}`,
+]);
 
 console.log(
   JSON.stringify(
     {
-      inputPath,
-      outputPath,
+      version: windsurfVersion,
+      inputPath: inputMeta.path,
+      outputPath: outDir,
       messages: extracted.messageAssignments.length,
       enums: extracted.enumCalls.length,
       services: extracted.serviceAssignments.length,

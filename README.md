@@ -180,3 +180,38 @@ pnpm run package
 ```
 
 The GitHub Actions workflow automatically builds and releases the extension on git tags (e.g., `v0.0.2`).
+
+## Related Work
+
+### Using windsurf-api
+
+If you're building with this code or learned from it, let us know! We'd love to hear about your project.
+
+### Other Implementations and References
+
+I've kept an eye out for other implementations and references to the core APIs,
+I typically find them by searching for the protobuf method names in GitHub/elsewhere like *this*:
+
+- [Github Search: /exa.cortex_pb.SendChatMessage/](https://github.com/search?q=%2Fexa.cortex_pb.SendChatMessage%2F&type=code) - Github search for SendChatMessage method
+- [Github Search: /exa.cortex_pb.ArenaModeInfo/](https://github.com/search?q=%2Fexa.cortex_pb.ArenaModeInfo%2F&type=code) - Github search for recently added APIs
+
+#### What I've found
+
+- [mobb-dev/bugsy: .../CortexTrajectory.ts](https://github.com/mobb-dev/bugsy/blob/66f57d0ad74ed947f90481aedb5e2a3b24a14c03/src/features/codeium_intellij/proto/exa/cortex_pb/CortexTrajectory.ts#L11) - Contains ArenaModeInfo, recent additions to the API
+- [IronBit-0/cpwn:.../antigravity_auto/universal_proxy_docs/patch_extension.py](https://github.com/IronBit-0/cpwn/blob/88b1a381ee8b928daa334bfc938bc6cd4550da65/website/antigravity_auto/universal_proxy_docs/patch_extension.py#L34) - A fun reminder that google anti-gravity is a *windsurf* fork which itself is a *vscode* fork 🤣
+- [rsvedant/opencode-windsurf-auth](https://github.com/rsvedant/opencode-windsurf-auth) - Also reverse engineering the Winsdurf API, building opencode.ai plugin
+- [vishnu09bharath/ai-usage-limit-monitor](https://github.com/vishnu09bharath/ai-usage-limit-monitor/blob/main/scripts/antigravity_ls_probe.py) - MacOS Menu Bar app that monitors AI usage for various services including Antigravity
+- [yuxinle1996/windsurf-grpc](https://github.com/yuxinle1996/windsurf-grpc/blob/master/script/proto-reverse-engineer.js) - Proto reverse engineering scripts, and various forks ( like  [windsurf-account-manager](https://github.com/surdring/windsurf-account-manager))
+
+If you've built something with these protos or figured out more of the API, feel free to open a PR.
+
+---
+
+## Contributors
+
+Made with ❤️ by:
+
+- **[@AlexStrNik](https://github.com/AlexStrNik)** - Original author and creator
+- **[@dfallon](https://github.com/dfallon)** - Maintainer and ongoing development
+
+Special thanks to all contributors who help keep this project alive!
