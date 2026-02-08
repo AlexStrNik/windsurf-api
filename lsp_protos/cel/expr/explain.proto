@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package cel.expr;
+
+option java_package = "dev.cel.expr";
+option java_outer_classname = "ExplainProto";
+option java_multiple_files = true;
+option go_package = "cel.dev/expr";
+option cc_enable_arenas = true;
+
+import "cel/expr/value.proto";
+
+message Explain {
+  message ExprStep {
+    int64 id = 1;
+    int32 value_index = 2;
+  }
+
+  repeated .cel.expr.Value values = 1;
+  repeated .cel.expr.Explain.ExprStep expr_steps = 2;
+}
+

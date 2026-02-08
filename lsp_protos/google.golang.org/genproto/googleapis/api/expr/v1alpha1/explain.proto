@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package google.api.expr.v1alpha1;
+
+option java_package = "com.google.api.expr.v1alpha1";
+option java_outer_classname = "ExplainProto";
+option java_multiple_files = true;
+option go_package = "google.golang.org/genproto/googleapis/api/expr/v1alpha1;expr";
+option cc_enable_arenas = true;
+
+import "google/api/expr/v1alpha1/value.proto";
+
+message Explain {
+  message ExprStep {
+    int64 id = 1;
+    int32 value_index = 2;
+  }
+
+  repeated .google.api.expr.v1alpha1.Value values = 1;
+  repeated .google.api.expr.v1alpha1.Explain.ExprStep expr_steps = 2;
+}
+

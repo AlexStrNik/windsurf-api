@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package exa.auth_pb;
+
+option go_package = "github.com/Exafunction/Exafunction/exa/auth_pb";
+
+import "buf/validate/validate.proto";
+import "exa/codeium_common_pb/codeium_common.proto";
+
+service AuthService {
+  rpc GetUserJwt (.exa.auth_pb.GetUserJwtRequest) returns (.exa.auth_pb.GetUserJwtResponse) {}
+}
+
+message GetUserJwtRequest {
+  .exa.codeium_common_pb.Metadata metadata = 1;
+}
+
+message GetUserJwtResponse {
+  string user_jwt = 1;
+  string custom_api_server_url = 2;
+}
+
