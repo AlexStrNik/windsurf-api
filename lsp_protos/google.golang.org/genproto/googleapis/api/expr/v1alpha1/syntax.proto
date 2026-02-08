@@ -1,0 +1,137 @@
+syntax = "proto3";
+
+package google.api.expr.v1alpha1;
+
+option java_package = "com.google.api.expr.v1alpha1";
+option java_outer_classname = "SyntaxProto";
+option java_multiple_files = true;
+option go_package = "google.golang.org/genproto/googleapis/api/expr/v1alpha1;expr";
+option cc_enable_arenas = true;
+
+import "google/protobuf/duration.proto";
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+
+message ParsedExpr {
+  .google.api.expr.v1alpha1.Expr expr = 2;
+  .google.api.expr.v1alpha1.SourceInfo source_info = 3;
+}
+
+message Expr {
+  message Ident {
+    string name = 1;
+  }
+
+  message Select {
+    .google.api.expr.v1alpha1.Expr operand = 1;
+    string field = 2;
+    bool test_only = 3;
+  }
+
+  message Call {
+    .google.api.expr.v1alpha1.Expr target = 1;
+    string function = 2;
+    repeated .google.api.expr.v1alpha1.Expr args = 3;
+  }
+
+  message CreateList {
+    repeated .google.api.expr.v1alpha1.Expr elements = 1;
+    repeated int32 optional_indices = 2;
+  }
+
+  message CreateStruct {
+    message Entry {
+      int64 id = 1;
+      .google.api.expr.v1alpha1.Expr value = 4;
+      bool optional_entry = 5;
+      oneof key_kind {
+        string field_key = 2;
+        .google.api.expr.v1alpha1.Expr map_key = 3;
+      }
+    }
+
+    string message_name = 1;
+    repeated .google.api.expr.v1alpha1.Expr.CreateStruct.Entry entries = 2;
+  }
+
+  message Comprehension {
+    string iter_var = 1;
+    string iter_var2 = 8;
+    .google.api.expr.v1alpha1.Expr iter_range = 2;
+    string accu_var = 3;
+    .google.api.expr.v1alpha1.Expr accu_init = 4;
+    .google.api.expr.v1alpha1.Expr loop_condition = 5;
+    .google.api.expr.v1alpha1.Expr loop_step = 6;
+    .google.api.expr.v1alpha1.Expr result = 7;
+  }
+
+  int64 id = 2;
+  oneof expr_kind {
+    .google.api.expr.v1alpha1.Constant const_expr = 3;
+    .google.api.expr.v1alpha1.Expr.Ident ident_expr = 4;
+    .google.api.expr.v1alpha1.Expr.Select select_expr = 5;
+    .google.api.expr.v1alpha1.Expr.Call call_expr = 6;
+    .google.api.expr.v1alpha1.Expr.CreateList list_expr = 7;
+    .google.api.expr.v1alpha1.Expr.CreateStruct struct_expr = 8;
+    .google.api.expr.v1alpha1.Expr.Comprehension comprehension_expr = 9;
+  }
+}
+
+message Constant {
+  oneof constant_kind {
+    .google.protobuf.NullValue null_value = 1;
+    bool bool_value = 2;
+    int64 int64_value = 3;
+    uint64 uint64_value = 4;
+    double double_value = 5;
+    string string_value = 6;
+    bytes bytes_value = 7;
+    .google.protobuf.Duration duration_value = 8;
+    .google.protobuf.Timestamp timestamp_value = 9;
+  }
+}
+
+message SourceInfo {
+  message Extension {
+    message Version {
+      int64 major = 1;
+      int64 minor = 2;
+    }
+
+    enum Component {
+      COMPONENT_UNSPECIFIED = 0;
+      COMPONENT_PARSER = 1;
+      COMPONENT_TYPE_CHECKER = 2;
+      COMPONENT_RUNTIME = 3;
+    }
+
+    string id = 1;
+    repeated .google.api.expr.v1alpha1.SourceInfo.Extension.Component affected_components = 2;
+    .google.api.expr.v1alpha1.SourceInfo.Extension.Version version = 3;
+  }
+
+  message PositionsEntry {
+    int64 key = 1;
+    int32 value = 2;
+  }
+
+  message MacroCallsEntry {
+    int64 key = 1;
+    .google.api.expr.v1alpha1.Expr value = 2;
+  }
+
+  string syntax_version = 1;
+  string location = 2;
+  repeated int32 line_offsets = 3;
+  repeated .google.api.expr.v1alpha1.SourceInfo.PositionsEntry positions = 4;
+  repeated .google.api.expr.v1alpha1.SourceInfo.MacroCallsEntry macro_calls = 5;
+  repeated .google.api.expr.v1alpha1.SourceInfo.Extension extensions = 6;
+}
+
+message SourcePosition {
+  string location = 1;
+  int32 offset = 2;
+  int32 line = 3;
+  int32 column = 4;
+}
+

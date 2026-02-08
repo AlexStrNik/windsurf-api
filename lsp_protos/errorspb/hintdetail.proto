@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package cockroach.errorspb;
+
+option go_package = "github.com/cockroachdb/errors/errorspb";
+
+message StringPayload {
+  string msg = 1;
+}
+

@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package google.api.expr.v1alpha1;
+
+option java_package = "com.google.api.expr.v1alpha1";
+option java_outer_classname = "EvalProto";
+option java_multiple_files = true;
+option go_package = "google.golang.org/genproto/googleapis/api/expr/v1alpha1;expr";
+option cc_enable_arenas = true;
+
+import "google/api/expr/v1alpha1/value.proto";
+import "google/rpc/status.proto";
+
+message EvalState {
+  message Result {
+    int64 expr = 1;
+    int64 value = 2;
+  }
+
+  repeated .google.api.expr.v1alpha1.ExprValue values = 1;
+  repeated .google.api.expr.v1alpha1.EvalState.Result results = 3;
+}
+
+message ExprValue {
+  oneof kind {
+    .google.api.expr.v1alpha1.Value value = 1;
+    .google.api.expr.v1alpha1.ErrorSet error = 2;
+    .google.api.expr.v1alpha1.UnknownSet unknown = 3;
+  }
+}
+
+message ErrorSet {
+  repeated .google.rpc.Status errors = 1;
+}
+
+message UnknownSet {
+  repeated int64 exprs = 1;
+}
+

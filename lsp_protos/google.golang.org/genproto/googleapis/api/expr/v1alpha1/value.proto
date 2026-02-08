@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+package google.api.expr.v1alpha1;
+
+option java_package = "com.google.api.expr.v1alpha1";
+option java_outer_classname = "ValueProto";
+option java_multiple_files = true;
+option go_package = "google.golang.org/genproto/googleapis/api/expr/v1alpha1;expr";
+option cc_enable_arenas = true;
+
+import "google/protobuf/any.proto";
+import "google/protobuf/struct.proto";
+
+message Value {
+  oneof kind {
+    .google.protobuf.NullValue null_value = 1;
+    bool bool_value = 2;
+    int64 int64_value = 3;
+    uint64 uint64_value = 4;
+    double double_value = 5;
+    string string_value = 6;
+    bytes bytes_value = 7;
+    .google.api.expr.v1alpha1.EnumValue enum_value = 9;
+    .google.protobuf.Any object_value = 10;
+    .google.api.expr.v1alpha1.MapValue map_value = 11;
+    .google.api.expr.v1alpha1.ListValue list_value = 12;
+    string type_value = 15;
+  }
+}
+
+message EnumValue {
+  string type = 1;
+  int32 value = 2;
+}
+
+message ListValue {
+  repeated .google.api.expr.v1alpha1.Value values = 1;
+}
+
+message MapValue {
+  message Entry {
+    .google.api.expr.v1alpha1.Value key = 1;
+    .google.api.expr.v1alpha1.Value value = 2;
+  }
+
+  repeated .google.api.expr.v1alpha1.MapValue.Entry entries = 1;
+}
+
